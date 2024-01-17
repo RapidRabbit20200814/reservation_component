@@ -1,0 +1,239 @@
+@import './reset.css';
+
+:root {
+  --color-light-gray: #f0f0f8;
+  --color-light-gray-shadow: #e1e1e8;
+  --color-light-orange: #ffead6;
+  --color-light-orange-shadow: #ffe0c1;
+  --color-light-pink: #f7e2ec;
+  --color-light-pink-shadow: #f9d7e6;
+  --color-light-blue: #e5f3fb;
+  --color-light-blue-shadow: #cae3f1;
+  --color-accent: #36bdc1;
+  --color-font-base: #333;
+}
+
+html {
+  color: var(--color-font-base);
+}
+
+body {
+  background-color: #f7f7f7;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+main {
+  margin-bottom: 4rem;
+}
+
+.inner {
+  margin-inline: auto;
+  padding-inline: 20px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.inner-s {
+  margin-inline: auto;
+  padding-inline: 20px;
+  max-width: 650px;
+  width: 100%;
+}
+
+.inner-xs {
+  margin-inline: auto;
+  padding-inline: 20px;
+  max-width: 420px;
+  width: 100%;
+}
+
+a {
+  color: var(--color-font-base);
+  text-decoration: none;
+}
+
+section {
+  padding-block: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+/* ボタンエリア */
+.button-area {
+  margin-top: 2em;
+}
+.button-area-lg {
+  margin-top: 4em;
+}
+.button-area-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* ボタン（基本：アクセントカラー） */
+button {
+  padding: 0;
+  border: none;
+  background-color: transparent;
+}
+.button {
+  display: inline-block;
+  padding: 0.5em 1.7em;
+  min-width: 200px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  background-color: var(--color-accent);
+  white-space: nowrap;
+}
+/* ボタン（白） */
+.button-white {
+  min-width: initial;
+  color: var(--color-font-base);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  /* filter: drop-shadow(1px 1px 3px #eee); */
+}
+/* ボタン（アイコンつき） */
+.button-icon {
+  display: flex;
+}
+.button-icon img {
+  margin-right: 0.5em;
+}
+/* ボタン（戻る） */
+.button-return {
+  position: relative;
+  padding-left: 2em;
+}
+.button-return::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.8em;
+  width: 0.5em;
+  height: 0.5em;
+  margin-top: -0.25em;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(-135deg);
+}
+
+/* ボタン（次へ） */
+.button-next {
+  position: relative;
+  padding-right: 2em;
+}
+.button-next::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.8em;
+  width: 0.5em;
+  height: 0.5em;
+  margin-top: -0.25em;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* ボタン（小） */
+.button-small {
+  font-size: 0.8rem;
+  /* font-weight: normal; */
+}
+
+/* 番号つきリスト */
+.number-list {
+  list-style: decimal;
+  padding-left: 1em;
+}
+.number-list > li + li {
+  margin-top: 2rem;
+}
+.number-list > li::marker {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.number-list h2 {
+  margin-bottom: 0.7rem;
+}
+
+/* 表 */
+table {
+  margin-inline: auto;
+  background-color: #fff;
+}
+table .head {
+  border-bottom: 1px solid #ccc;
+}
+th,td {
+  padding: 0.5em 1em;
+  text-align: center;
+}
+
+/* フォーム */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+textarea,
+select {
+  padding: 0.3em;
+  border: 1px solid #ccc;
+  border-radius: 0.2em;
+  background-color: #fff;
+}
+input[type="number"] {
+  padding-right: 0;
+}
+input[type="date"] {
+  text-align: center;
+}
+select[disabled] {
+  background-color: var(--color-light-gray);
+}
+
+/* 管理画面リード文 */
+.lead {
+  margin-bottom: 2rem;
+}
+
+/* 表示切り替え */
+.pc-only {
+  display: none;
+}
+
+/* ホバー */
+@media (hover: hover) {
+  a:is(:hover,:focus-visible),
+  .button:is(:hover,:focus-visible) {
+    opacity: 0.8;
+  }
+}
+
+/* PC */
+@media (min-width: 768px) {
+  /* 表示切り替え */
+  .sp-only {
+    display: none;
+  }
+  .pc-only {
+    display: block;
+  }
+}
