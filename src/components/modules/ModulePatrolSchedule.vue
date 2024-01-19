@@ -197,10 +197,11 @@ const _generateSchedule = (year, grade) => {
               // 空の配列を追加
               newSchedule.push({
                 fullDate: "",
-                displayDate: "ー",
-                label: "ー",
+                displayDate: "",
+                label: "",
                 isAble: false,
-                exclusionFlg: false,
+                isSpace: true,
+                isExclusion: false,
                 tabIndex: "-1",
                 periodID: 0
               });
@@ -217,7 +218,8 @@ const _generateSchedule = (year, grade) => {
             displayDate: displayDate,
             label: "",
             isAble: true,
-            exclusionFlg: false,
+            isSpace: false,
+            isExclusion: false,
             tabIndex: "0",
             periodID: periodID
           });
@@ -243,7 +245,7 @@ const _generateSchedule = (year, grade) => {
     if (Object.values(excludeDays.value).some(item => item.exclude_day === schedule.fullDate)) {
       schedule.label = "ー";
       schedule.isAble = false;
-      schedule.exclusionFlg = true;
+      schedule.isExclusion = true;
       schedule.tabIndex = "-1";
     }
   }
@@ -270,7 +272,13 @@ onMounted(() => {
         _updatePeriod();
       }
       // スケジュール生成＆予約情報取得
-      _regenerateSchedule(props.selectedInfo.grade);
+      if (props.selectedInfo.grade) {
+        _regenerateSchedule(props.selectedInfo.grade);
+      } else {
+        _regenerateSchedule("");
+      }
+
+
     })
     .catch(error => {
       console.error('スケジュールの生成に失敗しました:', error);
@@ -299,7 +307,7 @@ const _getReservationLoop = async (target, point_id, maxNumber) => {
   let count = 0;
 // scheduleの件数分繰り返し
   for (const day of target.value) {
-    if (day.displayDate !== "ー") {
+    if (day.displayDate !== "ー" && day.displayDate !== "" && !day.isExclusion) {
       const year = day.fullDate.substr(0, 4);
       const month = day.fullDate.substr(5, 2);
       const date = day.fullDate.substr(8);
@@ -390,8 +398,8 @@ const excludeSetting = async() => {
 
 // 除外日データのクリア
 const _clearExclude = async () => {
-  // scheduleの件数分繰り返し
-  for (const day of schedule.value) {
+  const schedule = schedule1.value.concat(schedule2.value, schedule3.value);
+  for (const day of schedule) {
     // 除外日を削除
     await supabase
       .from('patrol_exclude')
@@ -403,9 +411,14 @@ const _clearExclude = async () => {
 // 除外日を登録
 const _setExclude = () => {
   // 除外日を取得
-  const excludeDays = schedule.value.filter((day) => day.isExclusion);
+  const excludeDays = [];
+  excludeDays.push(...schedule1.value.filter((day) => day.isExclusion));
+  excludeDays.push(...schedule2.value.filter((day) => day.isExclusion));
+  excludeDays.push(...schedule3.value.filter((day) => day.isExclusion));
+
   // 除外日をDBに登録
   excludeDays.forEach((day) => {
+    console.log(day.fullDate);
     if (day.fullDate) {
       supabase
         .from('patrol_exclude')
@@ -540,8 +553,8 @@ defineExpose({
             <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
@@ -561,8 +574,8 @@ defineExpose({
             <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
@@ -582,8 +595,8 @@ defineExpose({
             <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
@@ -719,17 +732,39 @@ defineExpose({
   pointer-events: none;
 }
 
-.item:not(.is-able) .item--btn {
-  background-color: var(--color-light-gray);
+.reserve-patrol .item:not(.is-able):not(.is-space) .item--btn {
+  background-color: var(--color-light-gray-shadow);
 }
 
-/* チェックボックス */
-input[type="checkbox"] {
+/* 日付なし */
+.item.is-space .item--btn{
+  background-color: transparent;
+}
+
+.item.is-space input[type="checkbox"] {
+  display: none;
+}
+
+/* 除外日設定ページ */
+.exclude-date .schedule-header,
+.exclude-date .schedule-list{
+  gap: 2px;
+}
+.exclude-date .item--btn {
+  grid-template-columns: 1fr auto;
+}
+.exclude-date .item--btn input[type="checkbox"] {
+  margin-inline: 0.5rem;
   width: 1em;
   height: 1em;
   cursor: pointer;
   pointer-events: initial;
 }
+.exclude-date .item:not(.is-space) {
+  border: 1px solid var(--color-light-gray);
+}
+
+
 /* PC */
 @media (min-width: 768px) {
   .schedule {
@@ -747,6 +782,18 @@ input[type="checkbox"] {
   }
   .item{
     font-size: 1rem;
+  }
+  /* 除外日設定ページ */
+  .exclude-date.schedule {
+    max-width: 100%;
+  }
+  .exclude-date .schedule-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+  .exclude-date .schedule-wrapper + .schedule-wrapper {
+    margin-top: 0;
   }
 }
 </style>

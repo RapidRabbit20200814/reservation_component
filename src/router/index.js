@@ -41,6 +41,11 @@ const routes = [
     name: "GradeSetting",
     component: () => import("../components/admin/GradeSetting.vue"),
   },
+  {
+    path: "/admin/patrol-exclude",
+    name: "PatrolExcludeDate",
+    component: () => import("../components/admin/patrolExcludeDate.vue"),
+  },
 ];
 
 const router = createRouter({
