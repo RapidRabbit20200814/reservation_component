@@ -54,8 +54,8 @@ const updateSchedule = () => {
           <ModuleGrades :selectedInfo="selectedInfo" />
         </li>
         <li v-if="selectedInfo.grade">
-          <h2>パトロールの場所を選んでください</h2>
-          <ModulePatrolPoints :selectedInfo="selectedInfo" />
+          <h2>パトロールのエリアを選んでください</h2>
+          <ModulePatrolPoints :selectedInfo="selectedInfo" :displayDetail="true" />
         </li>
         <li v-if="selectedInfo.pointID">
           <h2>パトロールを実施する日を選んでください</h2>
