@@ -149,66 +149,109 @@ const _setPeriod = (num) => {
 // --------------------------------------
 //  内部関数：防パトスケジュールを生成
 // --------------------------------------
-const _generateSchedule = (year) => {
+const _generateSchedule = (year, grade) => {
   // 該当年の水曜日、土曜日の日付を取得
   const newSchedule = [];
+  const newPeriods = [];
+  let firstWednesdayFlg = false;
+  let periodID = 0;
   // 1月1日から12月31日まで繰り返し
   for (let month = 1; month <= 12; month++) {
     for (let date = 1; date <= 31; date++) {
-      // 曜日を取得
-      const weekdayNo = new Date(`${year}/${month}/${date}`).getDay();
-      // 水曜日と土曜日の場合
-      if (weekdayNo == 3 || weekdayNo == 6) {
-        // 年月日取得(yyyy-mm-dd)
-        const monthFull = _zeroPadding(month, 2);
-        const dayFull = _zeroPadding(date, 2);
-        const fullDate = `${year}-${monthFull}-${dayFull}`;
-        // 曜日を取得
-        let weekday = "";
-        if (weekdayNo == 3) {
-          weekday = "水";
-        } else if (weekdayNo == 6) {
-          weekday = "土";
-        }
-        const displayDate = `${month}/${date}(${weekday})`;
-        // 配列に追加
-        newSchedule.push({
-          fullDate: fullDate,
-          displayDate: displayDate,
-          label: "",
-          isAble: true,
-          exclusionFlg: false,
-          tabIndex: "0",
-        });
+      let yyyymmdd = year + "-" + _zeroPadding(month, 2) + "-" + _zeroPadding(date, 2);
+      if (yyyymmdd < today) {
+        continue;
       }
+      let displayFlg = false;
+      // 月と日を指定してDateオブジェクトを作成
+      const currentDate = new Date(year, month-1, date);
+      // 月が変わったら終了
+      if (currentDate.getMonth() > month-1) {
+          break;
+      }
+      // 学年が指定されている場合、実施期間内のみ生成
+      if (grade) {
+        for (const period of periodsOfGrades.value) {
+          if (period.start <= yyyymmdd && yyyymmdd <= period.end) {
+            displayFlg = true;
+            periodID = period.periodID;
+          } else {
+            continue;
+          }
+        }
+      } else {
+        // 学年指定なし（=除外日設定画面）の場合、全件生成
+        displayFlg = true;
+      }
+
+      if (displayFlg) {
+        // 曜日を取得
+        const weekdayNo = currentDate.getDay();
+        // 水曜日と土曜日の場合
+        if (weekdayNo == 3 || weekdayNo == 6) {
+          // 1回目の水曜日の場合
+          if (!firstWednesdayFlg) {
+            if (weekdayNo == 3) {
+              firstWednesdayFlg = true;
+            } else if (weekdayNo == 6) {
+              // 空の配列を追加
+              newSchedule.push({
+                fullDate: "",
+                displayDate: "",
+                label: "",
+                isAble: false,
+                isSpace: true,
+                isExclusion: false,
+                tabIndex: "-1",
+                periodID: 0
+              });
+            }
+          }
+          // 年月日取得(yyyy-mm-dd)
+          const monthFull = _zeroPadding(month, 2);
+          const dayFull = _zeroPadding(date, 2);
+          const fullDate = `${year}-${monthFull}-${dayFull}`;
+          const displayDate = `${month} / ${date}`;
+          // 配列に追加
+          newSchedule.push({
+            fullDate: fullDate,
+            displayDate: displayDate,
+            label: "",
+            isAble: true,
+            isSpace: false,
+            isExclusion: false,
+            tabIndex: "0",
+            periodID: periodID
+          });
+        }
+      }
+
     }
   }
-    // newScheduleの件数分繰り返し
+
+  // newScheduleの件数分繰り返し
   for (const schedule of newSchedule) {
+    // 該当年から始まる祝日データを取得
+    const holidaysOfYear = Object.keys(holidays.value).filter(date => date.startsWith(year));
+
     // 祝日チェック
-    Object.keys(holidays.value).forEach(date => {
+    holidaysOfYear.forEach(date => {
       if (date === schedule.fullDate) {
-        // (水)→(水・祝)、(土)→(土・祝)に置換
-        schedule.displayDate = schedule.displayDate.replace(")", "・祝)");
+        // (祝)を追加
+        schedule.displayDate += " (祝)";
       }
     });
-    // 過去日チェック
-    if (schedule.fullDate < today) {
+    // 除外日チェック
+    if (Object.values(excludeDays.value).some(item => item.exclude_day === schedule.fullDate)) {
       schedule.label = "ー";
       schedule.isAble = false;
+      schedule.isExclusion = true;
       schedule.tabIndex = "-1";
-    } else {
-      // 除外日チェック
-      if (Object.values(excludeDays.value).some(item => item.exclude_day === schedule.fullDate)) {
-        schedule.label = "ー";
-        schedule.isAble = false;
-        schedule.exclusionFlg = true;
-        schedule.tabIndex = "-1";
-      }
     }
   }
   return newSchedule;
 }
+
 
 // --------------------------------------
 //  初期表示
@@ -224,13 +267,18 @@ onMounted(() => {
     .then(() => {
       // 本日の情報を取得
       _getCurrentInfo();
-      // 本日より３年分のスケジュールを生成
-      year1 = today.substring(0, 4);
-      year2 = parseInt(year1) + 1;
-      year3 = parseInt(year1) + 2;
-      schedule1.value = _generateSchedule(year1);
-      schedule2.value = _generateSchedule(year2);
-      schedule3.value = _generateSchedule(year3);
+      // 学年の実施期間を取得
+      if (props.page.startsWith("reserve")){
+        _updatePeriod();
+      }
+      // スケジュール生成＆予約情報取得
+      if (props.selectedInfo.grade) {
+        _regenerateSchedule(props.selectedInfo.grade);
+      } else {
+        _regenerateSchedule("");
+      }
+
+
     })
     .catch(error => {
       console.error('スケジュールの生成に失敗しました:', error);
@@ -241,7 +289,6 @@ onMounted(() => {
 //  予約情報を取得（条件：ポイントID）
 // --------------------------------------
 const getReservation = async (point_id) => {
-
   let maxNumber = 0;
   //  防パトエリア情報を取得
   const { data } = await supabase
@@ -251,16 +298,16 @@ const getReservation = async (point_id) => {
   maxNumber = data[0].max_number;
 
   // 予約情報を取得
-  await _getReservationLoop(schedule1,maxNumber);
-  await _getReservationLoop(schedule2,maxNumber);
-  await _getReservationLoop(schedule3,maxNumber);
+  await _getReservationLoop(schedule1, point_id, maxNumber);
+  await _getReservationLoop(schedule2, point_id, maxNumber);
+  await _getReservationLoop(schedule3, point_id, maxNumber);
 }
 
-const _getReservationLoop = async (target,maxNumber) => {
+const _getReservationLoop = async (target, point_id, maxNumber) => {
   let count = 0;
 // scheduleの件数分繰り返し
   for (const day of target.value) {
-    if (day.isAble) {
+    if (day.displayDate !== "ー" && day.displayDate !== "" && !day.isExclusion) {
       const year = day.fullDate.substr(0, 4);
       const month = day.fullDate.substr(5, 2);
       const date = day.fullDate.substr(8);
@@ -272,9 +319,11 @@ const _getReservationLoop = async (target,maxNumber) => {
         .eq('year', `${year}`)
         .eq('month', `${month}`)
         .eq('day', `${date}`)
-      count = Num(maxNumber) - Num(data.length);
+      count = parseInt(maxNumber) - parseInt(data.length);
       if (count > 0) {
         day.label = `あと${count}名`;
+        day.isAble = true;
+        day.tabIndex = "0";
       } else {
         day.label = "✕";
         day.isAble = false;
@@ -287,11 +336,16 @@ const _getReservationLoop = async (target,maxNumber) => {
 // --------------------------------------
 //  内部関数：スケジュール生成＆予約情報取得
 // --------------------------------------
-const _regenerateSchedule = (grade) => {
+const _regenerateSchedule = async(grade) => {
   // 除外日情報再取得
-  _getExclude();
-  // スケジュール生成
-  schedule.value = _generateSchedule(grade);
+  await _getExclude();
+  // 本日より３年分のスケジュールを生成
+  year1 = today.substring(0, 4);
+  year2 = parseInt(year1) + 1;
+  year3 = parseInt(year1) + 2;
+  schedule1.value = _generateSchedule(year1, grade);
+  schedule2.value = _generateSchedule(year2, grade);
+  schedule3.value = _generateSchedule(year3, grade);
   if (props.page.startsWith("reserve")) {
     // 予約情報を取得
     getReservation(props.selectedInfo.pointID);
@@ -344,8 +398,8 @@ const excludeSetting = async() => {
 
 // 除外日データのクリア
 const _clearExclude = async () => {
-  // scheduleの件数分繰り返し
-  for (const day of schedule.value) {
+  const schedule = schedule1.value.concat(schedule2.value, schedule3.value);
+  for (const day of schedule) {
     // 除外日を削除
     await supabase
       .from('patrol_exclude')
@@ -357,9 +411,14 @@ const _clearExclude = async () => {
 // 除外日を登録
 const _setExclude = () => {
   // 除外日を取得
-  const excludeDays = schedule.value.filter((day) => day.isExclusion);
+  const excludeDays = [];
+  excludeDays.push(...schedule1.value.filter((day) => day.isExclusion));
+  excludeDays.push(...schedule2.value.filter((day) => day.isExclusion));
+  excludeDays.push(...schedule3.value.filter((day) => day.isExclusion));
+
   // 除外日をDBに登録
   excludeDays.forEach((day) => {
+    console.log(day.fullDate);
     if (day.fullDate) {
       supabase
         .from('patrol_exclude')
@@ -394,10 +453,12 @@ if (props.page.startsWith("reserve")) {
 // --------------------------------------
 //  監視（学年が変更されたら実施期間を更新）
 // --------------------------------------
-if (props.page === "reserve-patrol") {
+if (props.page.startsWith("reserve")) {
   watch(() => props.selectedInfo.grade, async(newValue, oldValue) => {
     if (newValue !== oldValue) {
       _updatePeriod();
+      // スケジュール生成 & 予約情報を取得
+      _regenerateSchedule(props.selectedInfo.grade);
     }
   });
 }
@@ -406,6 +467,7 @@ const _updatePeriod = () => {
   // 初期化
   let displayStart = "";
   let displayEnd = "";
+  let periodID = 0;
   periodsOfGrades.value = [];
   // 選択された学年の直近の実施月を取得 → 初期表示
   // periodsの件数分繰り返し
@@ -415,29 +477,44 @@ const _updatePeriod = () => {
       if (period.end >= today) {
         // period.start,period.endを置換したものをdisplayStart,displayEndに設定
         // 月日の0を削除
-        displayStart = period.start.replace(/-0/g, "- ");
-        displayEnd = period.end.replace(/-0/g, "- ");
+        displayStart = period.start.replace(/-0/g, "-");
+        displayEnd = period.end.replace(/-0/g, "-");
         // -を/に変換
-        displayStart = displayStart.replace(/-/g, "/");
-        displayEnd = displayEnd.replace(/-/g, "/");
+        displayStart = displayStart.replace(/-/g, " / ");
+        displayEnd = displayEnd.replace(/-/g, " / ");
         // start,endが今年の場合、年を削除
         if (displayStart.substring(0, 4) == today.substring(0, 4)) {
-          displayStart = displayStart.substring(5);
+          displayStart = displayStart.substring(6);
         }
         if (displayEnd.substring(0, 4) == today.substring(0, 4)) {
-          displayEnd = displayEnd.substring(5);
+          displayEnd = displayEnd.substring(6);
         }
         // 実施期間を設定
+        periodID++;
         periodsOfGrades.value.push({
-          start: displayStart,
-          end: displayEnd
+          periodID: periodID,
+          displayStart: displayStart,
+          displayEnd: displayEnd,
+          start: period.start,
+          end: period.end,
         });
       }
     }
   }
-  // スケジュール生成 & 予約情報を取得
-  _regenerateSchedule(props.selectedInfo.value.grade);
+  _sortPeriods();
 }
+
+//  periodsOfGradesをstartの昇順に並び替え
+const _sortPeriods = () => {
+  periodsOfGrades.value.sort(function(a, b) {
+    if (a.start < b.start) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
+}
+
 
 // --------------------------------------
 //  親コンポーネントに公開するメソッドを定義
@@ -449,66 +526,77 @@ defineExpose({
 </script>
 
 <template>
-  <div class="schedule" :class="page">
+  <div class="inner-s schedule" :class="page">
     <p v-if="page === 'reserve-patrol'" class="period-message">
       {{ selectedInfo.grade }}年生の担当期間は
       <ol class="period-list">
         <li v-for="(period,index) in periodsOfGrades" :key=index>
-          <span class="period">{{period.start}} 〜 {{period.end}}</span>
+          <span class="period" :class="'color' + period.periodID">{{period.displayStart}} 〜 {{period.displayEnd}}</span>
         </li>
       </ol>
       です。
     </p>
-    <!-- スケジュールメイン -->
-    <ol>
-      <li>
-        <p>{{ year1 }}年</p>
-        <ol class="body">
+    <ol class="schedule-body">
+      <li v-if="schedule1.length > 0" class="schedule-wrapper">
+        <h3 class="year-title">{{ year1 }}年</h3>
+        <div class="schedule-header">
+          <p>水曜日</p>
+          <p>土曜日</p>
+        </div>
+        <ol class="schedule-list">
           <li v-for="(list, index) in schedule1" :key="index" class="item" :class="{
             'is-able': list.isAble,
             'is-space': list.isSpace,
             'is-holiday': list.isHoliday,
             'is-exclusion': list.isExclusion
           }">
-            <button type="button" class="item--btn js-modal-trigger" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
+            <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
-      <li>
-        <p>{{ year2 }}年</p>
-        <ol class="body">
+      <li v-if="schedule2.length > 0" class="schedule-wrapper">
+        <h3 class="year-title">{{ year2 }}年</h3>
+        <div class="schedule-header">
+          <p>水曜日</p>
+          <p>土曜日</p>
+        </div>
+        <ol class="schedule-list">
           <li v-for="(list, index) in schedule2" :key="index" class="item" :class="{
             'is-able': list.isAble,
             'is-space': list.isSpace,
             'is-holiday': list.isHoliday,
             'is-exclusion': list.isExclusion
           }">
-            <button type="button" class="item--btn js-modal-trigger" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
+            <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
-      <li>
-        <p>{{ year3 }}年</p>
-        <ol class="body">
+      <li v-if="schedule3.length > 0" class="schedule-wrapper">
+        <h3 class="year-title">{{ year3 }}年</h3>
+        <div class="schedule-header">
+          <p>水曜日</p>
+          <p>土曜日</p>
+        </div>
+        <ol class="schedule-list">
           <li v-for="(list, index) in schedule3" :key="index" class="item" :class="{
             'is-able': list.isAble,
             'is-space': list.isSpace,
             'is-holiday': list.isHoliday,
             'is-exclusion': list.isExclusion
           }">
-            <button type="button" class="item--btn js-modal-trigger" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
+            <button type="button" class="item--btn js-modal-trigger" :class="'color' + list.periodID" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
               <span class="item--date">{{list.displayDate}}</span>
               <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+              <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
             </button>
-            <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
           </li>
         </ol>
       </li>
@@ -522,7 +610,7 @@ defineExpose({
 
 <style scoped>
 .schedule {
-  padding: 2rem 1rem;
+  padding: 2em 1rem;
   background-color: #fff;
   text-align: center;
 }
@@ -546,21 +634,70 @@ defineExpose({
   padding: 0.5em;
   font-weight: bold;
   border-radius: 0.5em;
-  background-color: var(--color-light-orange);
 }
 
-/* スケジュール全体 */
-.body{
+.color1 {
+  background-color: var(--color-light-green);
+}
+.color2 {
+  background-color: var(--color-light-yellow);
+}
+.color3 {
+  background-color: var(--color-light-purple);
+}
+.color4 {
+  background-color: var(--color-light-blue);
+}
+.color5 {
+  background-color: var(--color-light-pink);
+}
+.color6 {
+  background-color: var(--color-light-orange);
+}
+/* スケジュール */
+.schedule-wrapper {
+  padding: 1rem 0;
+}
+
+.schedule-wrapper + .schedule-wrapper {
   margin-top: 1rem;
+}
+
+.year-title {
+  position: relative;
+  padding-left: 1em;
+  width: fit-content;
+}
+
+.year-title::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  transform: translateY(-50%);
+  clip-path: polygon(0 0, 0% 100%, 100% 50%);
+  background-color: currentColor;
+}
+
+/* スケジュールリスト */
+.schedule-header {
+  padding: 0.3rem 0;
+}
+
+.schedule-header,
+.schedule-list{
   width:100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px;
+  gap: 8px;
   text-align: center;
 }
 
 .item{
   min-height: 3rem;
+  font-size: 0.8rem;
   text-align: center;
   cursor: default;
   pointer-events: none;
@@ -568,20 +705,26 @@ defineExpose({
 
 /* スケジュール（日付エリア） */
 .item--btn {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-around;
   align-items: center;
   gap: 0.3em;
   width: 100%;
+  height: 100%;
   padding: 0.5rem 0;
+  border-radius: 4px;
 }
 
 /* 選択OK */
-
 .reserve-patrol .item.is-able {
   cursor: pointer;
   pointer-events: initial;
+  filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+}
+
+.reserve-patrol .item.is-able .item-btn {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* 選択NG */
@@ -589,12 +732,68 @@ defineExpose({
   pointer-events: none;
 }
 
-/* チェックボックス */
-input[type="checkbox"] {
+.reserve-patrol .item:not(.is-able):not(.is-space) .item--btn {
+  background-color: var(--color-light-gray-shadow);
+}
+
+/* 日付なし */
+.item.is-space .item--btn{
+  background-color: transparent;
+}
+
+.item.is-space input[type="checkbox"] {
+  display: none;
+}
+
+/* 除外日設定ページ */
+.exclude-date .schedule-header,
+.exclude-date .schedule-list{
+  gap: 2px;
+}
+.exclude-date .item--btn {
+  grid-template-columns: 1fr auto;
+}
+.exclude-date .item--btn input[type="checkbox"] {
+  margin-inline: 0.5rem;
   width: 1em;
   height: 1em;
   cursor: pointer;
   pointer-events: initial;
 }
+.exclude-date .item:not(.is-space) {
+  border: 1px solid var(--color-light-gray);
+}
 
+
+/* PC */
+@media (min-width: 768px) {
+  .schedule {
+    padding: 2rem;
+  }
+  .schedule-wrapper {
+    padding: 1rem;
+  }
+  .year-title {
+    padding-left: 0.5em;
+  }
+
+  .year-title::before {
+    left: -0.8rem;
+  }
+  .item{
+    font-size: 1rem;
+  }
+  /* 除外日設定ページ */
+  .exclude-date.schedule {
+    max-width: 100%;
+  }
+  .exclude-date .schedule-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+  .exclude-date .schedule-wrapper + .schedule-wrapper {
+    margin-top: 0;
+  }
+}
 </style>

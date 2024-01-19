@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-import ModuleHeader from './modules/ModuleHeader.vue';
-import ModuleFlagPoints from './modules/ModuleFlagPoints.vue';
-import ModuleCalendar from './modules/ModuleCalendar.vue';
-import ModuleReserveDialog from './modules/ModuleReserveDialog.vue';
-import ModuleStorageView from "./modules/ModuleStorageView.vue";
+import ModuleHeader from "./modules/ModuleHeader.vue";
+import ModuleFlagPoints from "./modules/ModuleFlagPoints.vue";
+import ModuleCalendar from "./modules/ModuleCalendar.vue";
+import ModuleFlagReserveDialog from "./modules/ModuleFlagReserveDialog.vue";
+import ModuleFlagStorageView from "./modules/ModuleFlagStorageView.vue";
 
 const page = ref("reserve-flag-support");
 
@@ -20,7 +20,7 @@ const selectedInfo = ref({
   weekDay: "",
   grade: "",
   class: "",
-  number: ""
+  number: "",
 });
 
 // [ModuleCalendar]のインスタンスを保持する ref
@@ -31,14 +31,13 @@ const updateDate = (date) => {
   // モーダルを開く
   const modal = document.querySelector("#reserve-modal");
   modal.showModal();
-}
+};
 
-// [ModuleStorageView]予約データ削除
-// [ModuleReserveDialog]データ重複
+// [ModuleFlagStorageView]予約データ削除
+// [ModuleFlagReserveDialog]データ重複
 const updateCalendar = () => {
   calendarRef.value?.getReservation(selectedInfo.value.pointID, selectedInfo.value.year, selectedInfo.value.month);
-}
-
+};
 </script>
 
 <template>
@@ -55,15 +54,17 @@ const updateCalendar = () => {
         </li>
         <li v-if="selectedInfo.pointID">
           <h2>旗当番を実施する日を選んでください</h2>
-          <ModuleCalendar @selectDate="updateDate"  :selectedInfo="selectedInfo" :page="page" ref="calendarRef" />
+          <ModuleCalendar @selectDate="updateDate" :selectedInfo="selectedInfo" :page="page" ref="calendarRef" />
         </li>
       </ol>
 
-      <ModuleReserveDialog @conflict="updateCalendar" :selectedInfo="selectedInfo" />
-      <ModuleStorageView @delete="updateCalendar" :selectedInfo="selectedInfo" />
+      <ModuleFlagReserveDialog @conflict="updateCalendar" :selectedInfo="selectedInfo" />
+      <ModuleFlagStorageView @delete="updateCalendar" :selectedInfo="selectedInfo" />
 
       <div class="button-area-lg">
-        <router-link :to="{name:'Menu'}" class="button button-return button-white button-small">メニューへ戻る</router-link>
+        <router-link :to="{ name: 'Menu' }" class="button button-return button-white button-small"
+          >メニューへ戻る</router-link
+        >
       </div>
     </div>
   </main>

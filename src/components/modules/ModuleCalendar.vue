@@ -470,17 +470,17 @@ const _setTargetMonth = () => {
       if (period.end >= today) {
         // period.start,period.endを置換したものをdisplayStart,displayEndに設定
         // 月日の0を削除
-        displayStart = period.start.replace(/-0/g, "- ");
-        displayEnd = period.end.replace(/-0/g, "- ");
+        displayStart = period.start.replace(/-0/g, "-");
+        displayEnd = period.end.replace(/-0/g, "-");
         // -を/に変換
-        displayStart = displayStart.replace(/-/g, "/");
-        displayEnd = displayEnd.replace(/-/g, "/");
+        displayStart = displayStart.replace(/-/g, " / ");
+        displayEnd = displayEnd.replace(/-/g, " / ");
         // start,endが今年の場合、年を削除
         if (displayStart.substring(0, 4) == today.substring(0, 4)) {
-          displayStart = displayStart.substring(5);
+          displayStart = displayStart.substring(6);
         }
         if (displayEnd.substring(0, 4) == today.substring(0, 4)) {
-          displayEnd = displayEnd.substring(5);
+          displayEnd = displayEnd.substring(6);
         }
         // 実施期間を設定
         periodsOfGrades.value.push({
@@ -684,6 +684,13 @@ defineExpose({
 .reserve-flag-support .item.is-able {
   cursor: pointer;
   pointer-events: initial;
+}
+
+@media (hover: hover) {
+  .reserve-flag-grade .item.is-able:is(:hover, :focus-visible),
+  .reserve-flag-support .item.is-able:is(:hover, :focus-visible) {
+    opacity: 0.8;
+  }
 }
 
 /* 選択NG */

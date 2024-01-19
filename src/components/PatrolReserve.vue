@@ -1,12 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-import ModuleHeader from './modules/ModuleHeader.vue';
-import ModuleGrades from './modules/ModuleGrades.vue';
-import ModulePatrolPoints from './modules/ModulePatrolPoints.vue';
-import ModulePatrolSchedule from './modules/ModulePatrolSchedule.vue';
-import ModuleReserveDialog from './modules/ModuleReserveDialog.vue';
-// import ModuleStorageView from "./modules/ModuleStorageView.vue";
+import ModuleHeader from "./modules/ModuleHeader.vue";
+import ModuleGrades from "./modules/ModuleGrades.vue";
+import ModulePatrolPoints from "./modules/ModulePatrolPoints.vue";
+import ModulePatrolSchedule from "./modules/ModulePatrolSchedule.vue";
+import ModulePatrolReserveDialog from "./modules/ModulePatrolReserveDialog.vue";
+import ModulePatrolStorageView from "./modules/ModulePatrolStorageView.vue";
 
 const page = ref("reserve-patrol");
 
@@ -21,7 +21,7 @@ const selectedInfo = ref({
   weekDay: "",
   grade: "",
   class: "",
-  number: ""
+  number: "",
 });
 
 // [ModulePatrolSchedule]のインスタンスを保持する ref
@@ -32,15 +32,12 @@ const updateDate = (date) => {
   // モーダルを開く
   const modal = document.querySelector("#reserve-modal");
   modal.showModal();
-}
+};
 
-// [ModuleStorageView]予約データ削除
-// [ModuleReserveDialog]データ重複
+// [ModulePatrolStorageView]予約データ削除
 const updateSchedule = () => {
   scheduleRef.value?.getReservation(selectedInfo.value.pointID, selectedInfo.value.year, selectedInfo.value.month);
-}
-
-
+};
 </script>
 
 <template>
@@ -62,16 +59,20 @@ const updateSchedule = () => {
         </li>
         <li v-if="selectedInfo.pointID">
           <h2>パトロールを実施する日を選んでください</h2>
-          <ModulePatrolSchedule @selectDate="updateDate"  :selectedInfo="selectedInfo" :page="page" ref="scheduleRef" />
+          <ModulePatrolSchedule @selectDate="updateDate" :selectedInfo="selectedInfo" :page="page" ref="scheduleRef" />
         </li>
       </ol>
 
-      <ModuleReserveDialog @conflict="updateSchedule" :selectedInfo="selectedInfo" />
-      <!-- <ModuleStorageView @delete="updateSchedule" :selectedInfo="selectedInfo" /> -->
+      <ModulePatrolReserveDialog :selectedInfo="selectedInfo" />
+      <ModulePatrolStorageView @delete="updateSchedule" :selectedInfo="selectedInfo" />
 
       <div class="button-area-lg button-area-flex">
-        <router-link :to="{name:'Menu'}" class="button button-return button-white button-small">メニューへ戻る</router-link>
-        <router-link :to="{name:'FlagReserve'}" class="button button-next button-white button-small">朝旗の予約へ</router-link>
+        <router-link :to="{ name: 'Menu' }" class="button button-return button-white button-small"
+          >メニューへ戻る</router-link
+        >
+        <router-link :to="{ name: 'FlagReserve' }" class="button button-next button-white button-small"
+          >朝旗の予約へ</router-link
+        >
       </div>
     </div>
   </main>

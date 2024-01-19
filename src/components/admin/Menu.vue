@@ -1,5 +1,5 @@
 <script setup>
-import ModuleHeaderAdmin from '../modules/ModuleHeaderAdmin.vue';
+import ModuleHeaderAdmin from "../modules/ModuleHeaderAdmin.vue";
 </script>
 
 <template>
@@ -10,16 +10,16 @@ import ModuleHeaderAdmin from '../modules/ModuleHeaderAdmin.vue';
     <div class="inner-xs">
       <ul class="menu-list">
         <li>
-          <router-link :to="{name:'GradeSetting'}" class="button">【朝旗】学年情報設定</router-link>
-          <p class="comment">
-            学年ごとの担当月と児童数を設定します
-          </p>
+          <router-link :to="{ name: 'GradeSetting' }" class="button">【朝旗】学年情報設定</router-link>
+          <p class="comment">学年ごとの担当月と児童数を設定します</p>
         </li>
         <li>
-          <router-link :to="{name:'FlagExcludeDate'}" class="button">【朝旗】除外日設定</router-link>
-          <p class="comment">
-            土日祝、長期休暇など、朝旗の除外日を設定します
-          </p>
+          <router-link :to="{ name: 'FlagExcludeDate' }" class="button">【朝旗】除外日設定</router-link>
+          <p class="comment">土日祝、長期休暇など、朝旗の除外日を設定します</p>
+        </li>
+        <li>
+          <router-link :to="{ name: 'PatrolExcludeDate' }" class="button">【防パト】除外日設定</router-link>
+          <p class="comment">土日祝、長期休暇など、防パトの除外日を設定します</p>
         </li>
       </ul>
     </div>
@@ -28,7 +28,7 @@ import ModuleHeaderAdmin from '../modules/ModuleHeaderAdmin.vue';
 </template>
 
 <style scoped>
-.menu-list li + li  {
+.menu-list li + li {
   margin-top: 2rem;
 }
 .comment {
