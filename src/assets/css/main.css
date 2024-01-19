@@ -1,4 +1,4 @@
-@import './reset.css';
+@import "./reset.css";
 
 :root {
   --color-light-gray: #f0f0f8;
@@ -9,6 +9,9 @@
   --color-light-pink-shadow: #f9d7e6;
   --color-light-blue: #e5f3fb;
   --color-light-blue-shadow: #cae3f1;
+  --color-light-green: #e2f7e8;
+  --color-light-purple: #e4e6f7;
+  --color-light-yellow: #fff1d6;
   --color-accent: #36bdc1;
   --color-font-base: #333;
 }
@@ -123,7 +126,7 @@ button {
   padding-left: 2em;
 }
 .button-return::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 0.8em;
@@ -141,7 +144,7 @@ button {
   padding-right: 2em;
 }
 .button-next::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   right: 0.8em;
@@ -183,7 +186,8 @@ table {
 table .head {
   border-bottom: 1px solid #ccc;
 }
-th,td {
+th,
+td {
   padding: 0.5em 1em;
   text-align: center;
 }
@@ -221,8 +225,8 @@ select[disabled] {
 
 /* ホバー */
 @media (hover: hover) {
-  a:is(:hover,:focus-visible),
-  .button:is(:hover,:focus-visible) {
+  a:is(:hover, :focus-visible),
+  button:is(:hover, :focus-visible) {
     opacity: 0.8;
   }
 }
