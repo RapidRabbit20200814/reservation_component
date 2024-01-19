@@ -76,6 +76,12 @@ h2 {
   font-weight: 700;
 }
 
+/* 白背景 */
+.bg-white {
+  padding: 2em 1rem;
+  background-color: #fff;
+}
+
 /* ボタンエリア */
 .button-area {
   margin-top: 2em;
@@ -111,7 +117,6 @@ button {
   color: var(--color-font-base);
   background-color: #fff;
   border: 1px solid #ddd;
-  /* filter: drop-shadow(1px 1px 3px #eee); */
 }
 /* ボタン（アイコンつき） */
 .button-icon {
@@ -159,7 +164,6 @@ button {
 /* ボタン（小） */
 .button-small {
   font-size: 0.8rem;
-  /* font-weight: normal; */
 }
 
 /* 番号つきリスト */
@@ -199,7 +203,7 @@ input[type="number"],
 textarea,
 select {
   padding: 0.3em;
-  border: 1px solid #ccc;
+  border: 1px solid #bbb;
   border-radius: 0.2em;
   background-color: #fff;
 }
@@ -209,10 +213,114 @@ input[type="number"] {
 input[type="date"] {
   text-align: center;
 }
+textarea {
+  width: 100%;
+}
+/* ラジオボタン、チェックボックス */
+.form__checkbox,
+[type="radio"] {
+  padding: 0;
+  opacity: 0;
+}
+.form__radio-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.5em;
+}
+.form__radio-item {
+  display: flex;
+}
+.form__radio-item label {
+  position: relative;
+  padding-left: 2em;
+}
+.form__radio-item label::before,
+.form__radio-item label::after {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  content: "";
+  display: block;
+  border-radius: 50%;
+}
+.form__radio-item label::before {
+  width: 20px;
+  height: 20px;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #dedede;
+}
+.form__radio-item label::after {
+  width: 12px;
+  height: 12px;
+  left: 4px;
+  background-color: var(--color-accent);
+  opacity: 0;
+}
+.form__radio-item input[type="radio"]:checked + label::after {
+  opacity: 1;
+}
+/* チェックボックス */
+.form__checkbox-label {
+  position: relative;
+  display: inline-block;
+  margin-left: 1.8em;
+}
+.form__checkbox-label::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 1em;
+  left: -1.8em;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.form__checkbox-label:after {
+  position: absolute;
+  content: "";
+  display: block;
+  top: 1em;
+  left: -1.4em;
+  width: 7px;
+  height: 11px;
+  border-right: 2px solid #1a049b;
+  border-bottom: 2px solid #1a049b;
+  -webkit-transform: translateY(-70%) rotate(45deg);
+  transform: translateY(-70%) rotate(45deg);
+  opacity: 0;
+}
+.form__checkbox:checked {
+  color: #1a049b;
+}
+.form__checkbox:checked + .form__checkbox-label:after {
+  opacity: 1;
+}
+/* セレクトボックス */
 select[disabled] {
   background-color: var(--color-light-gray);
 }
-
+/* 必須ラベル */
+.form__required {
+  display: inline-block;
+  margin-left: 2em;
+  padding: 0.1em 0.5em;
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: #fff;
+  background-color: var(--color-accent);
+  text-align: center;
+}
+/* エラーメッセージ */
+.form__error {
+  margin-top: 0.5em;
+  font-size: 0.8rem;
+  color: #ff0000;
+}
 /* 管理画面リード文 */
 .lead {
   margin-bottom: 2rem;

@@ -9,6 +9,7 @@ let selectedPoint = 0;
 // 親コンポーネントから受け取る値を定義
 const props = defineProps({
   selectedInfo: Object,
+  displayDetail: Boolean,
 });
 
 // 防パトエリア情報取得
@@ -40,10 +41,16 @@ const selectPoint = (event) => {
 </script>
 
 <template>
-  <select id="point" v-model="selectedPoint" @change="selectPoint">
+  <select v-if="displayDetail" id="point" v-model="selectedPoint" @change="selectPoint">
     <option disabled value="">選択してください</option>
     <option v-for="(item, index) in points" :value="item.point_id" :key="index">
       {{ item.point_name }}（{{ item.meeting_place }}集合）
+    </option>
+  </select>
+  <select v-else id="point" v-model="selectedPoint" @change="selectPoint">
+    <option disabled value="">選択してください</option>
+    <option v-for="(item, index) in points" :value="item.point_id" :key="index">
+      {{ item.point_name }}
     </option>
   </select>
 </template>

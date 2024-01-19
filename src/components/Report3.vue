@@ -6,6 +6,7 @@ import ModuleHeader from "./modules/ModuleHeader.vue";
 import ModuleGrades from "./modules/ModuleGrades.vue";
 import ModuleClasses from "./modules/ModuleClasses.vue";
 import ModuleStudentNumbers from "./modules/ModuleStudentNumbers.vue";
+import ModuleWorkType from "./modules/ModuleWorkType.vue";
 import ModuleFlagPoints from "./modules/ModuleFlagPoints.vue";
 import ModulePatrolPoints from "./modules/ModulePatrolPoints.vue";
 
@@ -13,11 +14,11 @@ const selectedInfo = ref({
   grade: "",
   class: "",
   number: "",
+  type: "1",
   pointID: "",
 });
 
-let type = ref("1");
-let implementationDate = ref("");
+const implementationDate = ref("");
 let comment = ref("");
 
 let errorGrade = ref(false);
@@ -31,35 +32,35 @@ let errorDate = ref(false);
 // --------------------------------------
 const register = async () => {
   // 必須チェック
-  errorGrade.value = false;
-  errorClass.value = false;
-  errorNumber.value = false;
-  errorPoint.value = false;
-  errorDate.value = false;
+  errorGrade = false;
+  errorClass = false;
+  errorNumber = false;
+  errorPoint = false;
+  errorDate = false;
   // 学年、クラス、出席番号、立ち位置、実施日のいずれかが未入力の場合はエラー
   if (!selectedInfo.value.grade) {
-    errorGrade.value = true;
+    errorGrade = true;
   }
   if (!selectedInfo.value.class) {
-    errorClass.value = true;
+    errorClass = true;
   }
   if (!selectedInfo.value.number) {
-    errorNumber.value = true;
+    errorNumber = true;
   }
   if (!selectedInfo.value.pointID) {
-    errorPoint.value = true;
+    errorPoint = true;
   }
   if (!implementationDate.value) {
-    errorDate.value = true;
+    errorDate = true;
   }
 
   // エラーがある場合は、エラーメッセージを表示して処理を終了
-  if (!errorGrade.value && !errorClass.value && !errorNumber.value && !errorPoint.value && !errorDate.value) {
+  if (!errorGrade && !errorClass && !errorNumber && !errorPoint && !errorDate) {
     // 確認メッセージ
-    if (!confirm("登録しますか？")) {
+    if (!confirm("予約しますか？")) {
       return;
     }
-    // 報告データを登録
+    // 予約データを登録
     const { data, error } = await supabase
       .from("report")
       .upsert([
@@ -67,10 +68,10 @@ const register = async () => {
           grade: selectedInfo.value.grade,
           class: selectedInfo.value.class,
           student_no: selectedInfo.value.number,
-          work_type: type.value,
+          work_type: selectedInfo.value.type,
           point_id: selectedInfo.value.pointID,
-          implementation_date: implementationDate.value,
-          comment: comment.value,
+          implementation_date: implementationDate,
+          comment: comment,
         },
       ])
       .select();
@@ -78,38 +79,18 @@ const register = async () => {
     if (error) {
       console.error("データの挿入エラー:", error);
     } else {
-      // 確認メッセージを表示
-      if (type.value === "1") {
-        if (
-          confirm(
-            "朝旗の実施報告を登録しました。\r\n続けて防パトの報告もしますか？ →「OK」\r\n終了する →「キャンセル」"
-          )
-        ) {
-          type.value = "2";
-          selectedInfo.value.pointID = "";
-          implementationDate.value = "";
-          comment.value = "";
-        } else {
-          return;
-        }
-      } else {
-        if (
-          confirm(
-            "防パトの実施報告を登録しました。\r\n続けて朝旗の報告もしますか？ →「OK」\r\n終了する →「キャンセル」"
-          )
-        ) {
-          type.value = "1";
-          selectedInfo.value.pointID = "";
-          implementationDate.value = "";
-          comment.value = "";
-        } else {
-          return;
-        }
-      }
+      // メッセージを表示
+      alert("登録しました");
     }
   } else {
     alert("必須項目を入力してください");
+    return { errorGrade, errorClass, errorNumber, errorPoint, errorDate };
   }
+};
+
+const register2 = () => {
+  comment = "テスト";
+  console.log(comment);
 };
 </script>
 
@@ -127,6 +108,7 @@ const register = async () => {
           <dd class="form__data">
             <ModuleGrades :selectedInfo="selectedInfo" />
             <p v-if="errorGrade" class="form__error">学年を入力してください</p>
+            {{ errorGrade }}
           </dd>
         </div>
         <div class="form__row">
@@ -146,19 +128,10 @@ const register = async () => {
         <div class="form__row">
           <dt class="form__head"><span class="form__ttl">種別</span><span class="form__required">必須</span></dt>
           <dd class="form__data">
-            <ul class="form__radio-wrapper">
-              <li class="form__radio-item">
-                <input type="radio" id="type1" name="type" value="1" v-model="type" />
-                <label for="type1">朝旗</label>
-              </li>
-              <li class="form__radio-item">
-                <input type="radio" id="type2" name="type" value="2" v-model="type" />
-                <label for="type2">防パト</label>
-              </li>
-            </ul>
+            <ModuleWorkType :selectedInfo="selectedInfo" />
           </dd>
         </div>
-        <div class="form__row" v-if="type === '1'">
+        <div class="form__row" v-if="selectedInfo.type === '1'">
           <dt class="form__head"><span class="form__ttl">立ち位置</span><span class="form__required">必須</span></dt>
           <dd class="form__data">
             <ModuleFlagPoints :selectedInfo="selectedInfo" />
@@ -185,10 +158,11 @@ const register = async () => {
           </dt>
           <dd class="form__data">
             <textarea name="comment" id="comment" v-model="comment"></textarea>
+            <p>{{ comment }}</p>
           </dd>
         </div>
         <div class="button-area">
-          <button class="button" type="button" @click="register">登録する</button>
+          <button class="button" type="button" @click="register2">登録する</button>
         </div>
       </div>
       <div class="button-area-lg">
@@ -197,6 +171,7 @@ const register = async () => {
         >
       </div>
     </div>
+    <p>{{ comment }}</p>
   </main>
 </template>
 
@@ -226,7 +201,7 @@ textarea {
   .form__row {
     display: grid;
     grid-template-columns: 140px 1fr;
-    gap: 2rem;
+    gap: 1rem;
   }
   .form__head {
     justify-content: space-between;

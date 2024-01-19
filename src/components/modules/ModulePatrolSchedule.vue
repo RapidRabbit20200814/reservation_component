@@ -526,7 +526,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="inner-s schedule" :class="page">
+  <div class="inner-s bg-white schedule" :class="page">
     <p v-if="page === 'reserve-patrol'" class="period-message">
       {{ selectedInfo.grade }}年生の担当期間は
       <ol class="period-list">
@@ -610,8 +610,6 @@ defineExpose({
 
 <style scoped>
 .schedule {
-  padding: 2em 1rem;
-  background-color: #fff;
   text-align: center;
 }
 

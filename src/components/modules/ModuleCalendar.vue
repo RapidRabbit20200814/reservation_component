@@ -519,7 +519,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="calender" :class="page">
+  <div class="bg-white calender" :class="page">
     <p v-if="page === 'reserve-flag-grade'" class="period-message">
       {{ selectedInfo.grade }}年生の担当期間は
       <ol class="period-list">
@@ -564,8 +564,6 @@ defineExpose({
 
 <style scoped>
 .calender {
-  padding: 2rem 1rem;
-  background-color: #fff;
   text-align: center;
 }
 

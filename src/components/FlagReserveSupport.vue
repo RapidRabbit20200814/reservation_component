@@ -23,7 +23,7 @@ const selectedInfo = ref({
   number: "",
 });
 
-// [ModuleCalendar]のインスタンスを保持する ref
+// [ModuleCalendar]のインスタンスを保持する
 const calendarRef = ref(null);
 
 // [ModuleCalendar]カレンダーの日付クリック

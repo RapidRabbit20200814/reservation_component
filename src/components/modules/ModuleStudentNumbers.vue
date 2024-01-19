@@ -27,7 +27,7 @@ const selectNumber = () => {
 </script>
 
 <template>
-  <select id="class" v-model="selectedNumber" @change="selectNumber">
+  <select id="studentNumber" v-model="selectedNumber" @change="selectNumber">
     <option v-for="(label, index) in numbers" :value="label" :key="index">{{ label }}</option>
   </select>
   番
