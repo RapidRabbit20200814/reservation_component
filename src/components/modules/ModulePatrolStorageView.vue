@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits, onMounted, watch } from "vue";
+import { ref, defineEmits, onMounted, watch } from "vue";
 import { supabase } from "../../lib/supabaseClient";
 
 let storageData = ref([]);
@@ -117,7 +117,7 @@ const _deleteDBData = async (deleteID) => {
   <table v-if="storageData.length != 0">
     <tr class="head">
       <th class="class"><span>クラス</span><span>・番号</span></th>
-      <th class="point">地域</th>
+      <th class="point">エリア</th>
       <th class="date">実施予定日</th>
       <th class="delete">取消</th>
     </tr>

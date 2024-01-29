@@ -10,6 +10,7 @@ let selectedPoint = 0;
 const props = defineProps({
   selectedInfo: Object,
   displayDetail: Boolean,
+  blank: Boolean,
 });
 
 // 防パトエリア情報取得
@@ -34,23 +35,34 @@ const selectPoint = (event) => {
   // 選択された立ち位置のindexを取得
   const index = event.target.selectedIndex;
   // selectedInfoを更新
-  props.selectedInfo.pointID = points.value[index - 1].point_id;
-  props.selectedInfo.pointNo = points.value[index - 1].point_no;
-  props.selectedInfo.pointName = points.value[index - 1].point_name;
+  if (index === 0) {
+    props.selectedInfo.pointID = "";
+    props.selectedInfo.pointNo = "";
+    props.selectedInfo.pointName = "";
+  } else {
+    props.selectedInfo.pointID = points.value[index - 1].point_id;
+    props.selectedInfo.pointNo = points.value[index - 1].point_no;
+    props.selectedInfo.pointName = points.value[index - 1].point_name;
+  }
 };
 </script>
 
 <template>
-  <select v-if="displayDetail" id="point" v-model="selectedPoint" @change="selectPoint">
-    <option disabled value="">選択してください</option>
-    <option v-for="(item, index) in points" :value="item.point_id" :key="index">
-      {{ item.point_name }}（{{ item.meeting_place }}集合）
-    </option>
-  </select>
-  <select v-else id="point" v-model="selectedPoint" @change="selectPoint">
-    <option disabled value="">選択してください</option>
-    <option v-for="(item, index) in points" :value="item.point_id" :key="index">
-      {{ item.point_name }}
-    </option>
-  </select>
+  <div v-if="displayDetail" class="form__select-wrap">
+    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+      <option disabled value="">選択してください</option>
+      <option v-for="(item, index) in points" :value="item.point_id" :key="index">
+        {{ item.point_name }}（{{ item.meeting_place }}集合）
+      </option>
+    </select>
+  </div>
+  <div v-else class="form__select-wrap">
+    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+      <option v-if="blank" value=""></option>
+      <option v-else disabled value="">選択してください</option>
+      <option v-for="(item, index) in points" :value="item.point_id" :key="index">
+        {{ item.point_name }}
+      </option>
+    </select>
+  </div>
 </template>

@@ -24,7 +24,7 @@ const page = ref("exclude-date");
           >メニューへ戻る</router-link
         >
         <router-link :to="{ name: 'PatrolExcludeDate' }" class="button button-next button-white button-small"
-          >防パトの除外日設定へ</router-link
+          >【防パト】除外日設定へ</router-link
         >
       </div>
     </div>

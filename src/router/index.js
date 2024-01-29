@@ -46,6 +46,31 @@ const routes = [
     name: "PatrolExcludeDate",
     component: () => import("../components/admin/patrolExcludeDate.vue"),
   },
+  {
+    path: "/admin/totalling",
+    name: "Totalling",
+    component: () => import("../components/admin/Totalling.vue"),
+  },
+  {
+    path: "/admin/reservation-search",
+    name: "ReservationSearch",
+    component: () => import("../components/admin/ReservationSearch.vue"),
+  },
+  {
+    path: "/admin/report-search",
+    name: "ReportSearch",
+    component: () => import("../components/admin/ReportSearch.vue"),
+  },
+  {
+    path: "/admin/flag-point-setting",
+    name: "FlagPointSetting",
+    component: () => import("../components/admin/FlagPointSetting.vue"),
+  },
+  {
+    path: "/admin/patrol-point-setting",
+    name: "PatrolPointSetting",
+    component: () => import("../components/admin/PatrolPointSetting.vue"),
+  },
 ];
 
 const router = createRouter({

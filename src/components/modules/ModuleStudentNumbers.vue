@@ -12,6 +12,7 @@ let selectedNumber = 0;
 const props = defineProps({
   selectedInfo: Object,
   undecided: Boolean,
+  blank: Boolean,
 });
 
 // undecidedがtrueの場合は、クラスの先頭に未定を追加
@@ -27,8 +28,11 @@ const selectNumber = () => {
 </script>
 
 <template>
-  <select id="studentNumber" v-model="selectedNumber" @change="selectNumber">
-    <option v-for="(label, index) in numbers" :value="label" :key="index">{{ label }}</option>
-  </select>
+  <div class="form__select-wrap">
+    <select id="studentNumber" class="form__select-box" v-model="selectedNumber" @change="selectNumber">
+      <option v-if="blank" value=""></option>
+      <option v-for="(label, index) in numbers" :value="label" :key="index">{{ label }}</option>
+    </select>
+  </div>
   番
 </template>
