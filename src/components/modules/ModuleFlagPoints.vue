@@ -9,13 +9,14 @@ let selectedPoint = 0;
 // 親コンポーネントから受け取る値を定義
 const props = defineProps({
   selectedInfo: Object,
+  blank: Boolean,
 });
 
 // 立ち位置情報取得
 const getPoints = async () => {
   const { data } = await supabase.from("flag_point").select();
-  // deleted_flgが1以外の行のみを抽出
-  const filteredData = data.filter((row) => row.deleted_flg !== 1);
+  // deleted_flgがtrue以外の行のみを抽出
+  const filteredData = data.filter((row) => row.deleted_flg !== true);
   // pointsにセット
   points.value = filteredData;
 
@@ -36,17 +37,26 @@ const selectPoint = (event) => {
   // 選択された立ち位置のindexを取得
   const index = event.target.selectedIndex;
   // selectedInfoを更新
-  props.selectedInfo.pointID = points.value[index - 1].point_id;
-  props.selectedInfo.pointNo = points.value[index - 1].point_no;
-  props.selectedInfo.pointName = points.value[index - 1].point_name;
+  if (index === 0) {
+    props.selectedInfo.pointID = "";
+    props.selectedInfo.pointNo = "";
+    props.selectedInfo.pointName = "";
+  } else {
+    props.selectedInfo.pointID = points.value[index - 1].point_id;
+    props.selectedInfo.pointNo = points.value[index - 1].point_no;
+    props.selectedInfo.pointName = points.value[index - 1].point_name;
+  }
 };
 </script>
 
 <template>
-  <select id="point" v-model="selectedPoint" @change="selectPoint">
-    <option disabled value="">選択してください</option>
-    <option v-for="(item, index) in points" :value="item.point_id" :key="index">
-      {{ item.point_no }}：{{ item.point_name }}
-    </option>
-  </select>
+  <div class="form__select-wrap">
+    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+      <option v-if="blank" value=""></option>
+      <option v-else disabled value="">選択してください</option>
+      <option v-for="(item, index) in points" :value="item.point_id" :key="index">
+        {{ item.point_no }}：{{ item.point_name }}
+      </option>
+    </select>
+  </div>
 </template>

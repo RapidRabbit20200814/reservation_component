@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineEmits } from "vue";
 import { supabase } from "../../lib/supabaseClient";
 
 // 学年
@@ -156,27 +156,33 @@ const reserve = async () => {
         <div class="form__row">
           <dt class="form__head"><span class="form__ttl">学年</span></dt>
           <dd class="form__data">
-            <select id="grade" v-model="props.selectedInfo.grade" :disabled="gradeDisabled">
-              <option v-for="(label, index) in grades" :value="label" :key="index">{{ label }}</option>
-            </select>
+            <div class="form__select-wrap">
+              <select id="grade" class="form__select-box" v-model="props.selectedInfo.grade" :disabled="gradeDisabled">
+                <option v-for="(label, index) in grades" :value="label" :key="index">{{ label }}</option>
+              </select>
+            </div>
             年
           </dd>
         </div>
         <div class="form__row">
           <dt class="form__head"><span class="form__ttl">クラス</span></dt>
           <dd class="form__data">
-            <select id="class" v-model="props.selectedInfo.class">
-              <option v-for="(label, index) in classes" :value="label" :key="index">{{ label }}</option>
-            </select>
+            <div class="form__select-wrap">
+              <select id="class" class="form__select-box" v-model="props.selectedInfo.class">
+                <option v-for="(label, index) in classes" :value="label" :key="index">{{ label }}</option>
+              </select>
+            </div>
             組
           </dd>
         </div>
         <div class="form__row">
           <dt class="form__head"><span class="form__ttl">出席番号</span></dt>
           <dd class="form__data">
-            <select id="student_no" v-model="props.selectedInfo.number">
-              <option v-for="(label, index) in numbers" :value="label" :key="index">{{ label }}</option>
-            </select>
+            <div class="form__select-wrap">
+              <select id="student_no" class="form__select-box" v-model="props.selectedInfo.number">
+                <option v-for="(label, index) in numbers" :value="label" :key="index">{{ label }}</option>
+              </select>
+            </div>
             番
           </dd>
         </div>
@@ -191,29 +197,13 @@ const reserve = async () => {
         </ul>
       </div>
       <div class="form__btn">
-        <button type="button" class="button js-reserve" @click="reserve()"><span>予約する</span></button>
+        <button type="button" class="button" @click="reserve()"><span>予約する</span></button>
       </div>
     </form>
   </dialog>
 </template>
 
 <style scoped>
-.modal {
-  position: relative;
-  padding: 2rem;
-  border: none;
-}
-.modal__close {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: block;
-  width: 2rem;
-  height: 2rem;
-  background-color: var(--color-accent);
-  color: #fff;
-}
-
 .form {
   margin-top: 2rem;
 }
@@ -259,13 +249,5 @@ const reserve = async () => {
 }
 .undecided-message {
   margin-top: 1rem;
-}
-/* PC */
-@media (min-width: 768px) {
-  .modal {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
 }
 </style>

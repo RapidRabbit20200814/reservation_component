@@ -29,7 +29,7 @@ const selectYear = (year) => {
           >メニューへ戻る</router-link
         >
         <router-link :to="{ name: 'FlagExcludeDate' }" class="button button-next button-white button-small"
-          >朝旗の除外日設定へ</router-link
+          >【朝旗】除外日設定へ</router-link
         >
       </div>
     </div>

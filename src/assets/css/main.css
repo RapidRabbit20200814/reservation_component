@@ -14,6 +14,7 @@
   --color-light-yellow: #fff1d6;
   --color-accent: #36bdc1;
   --color-font-base: #333;
+  --color-gray: #666;
 }
 
 html {
@@ -76,6 +77,11 @@ h2 {
   font-weight: 700;
 }
 
+/* 非表示項目 */
+.hidden {
+  display: none;
+}
+
 /* 白背景 */
 .bg-white {
   padding: 2em 1rem;
@@ -121,6 +127,8 @@ button {
 /* ボタン（アイコンつき） */
 .button-icon {
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .button-icon img {
   margin-right: 0.5em;
@@ -166,6 +174,11 @@ button {
   font-size: 0.8rem;
 }
 
+/* 下線あり */
+.underlined {
+  text-decoration: underline;
+}
+
 /* 番号つきリスト */
 .number-list {
   list-style: decimal;
@@ -206,6 +219,16 @@ select {
   border: 1px solid #bbb;
   border-radius: 0.2em;
   background-color: #fff;
+}
+select {
+  appearance: none;
+}
+input[type="text"]::placeholder,
+input[type="date"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #bbb;
 }
 input[type="number"] {
   padding-right: 0;
@@ -265,12 +288,13 @@ textarea {
   position: relative;
   display: inline-block;
   margin-left: 1.8em;
+  width: fit-content;
 }
 .form__checkbox-label::before {
   content: "";
   display: block;
   position: absolute;
-  top: 1em;
+  top: 0.7em;
   left: -1.8em;
   -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
@@ -284,12 +308,12 @@ textarea {
   position: absolute;
   content: "";
   display: block;
-  top: 1em;
+  top: 0.7em;
   left: -1.4em;
   width: 7px;
   height: 11px;
-  border-right: 2px solid #1a049b;
-  border-bottom: 2px solid #1a049b;
+  border-right: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
   -webkit-transform: translateY(-70%) rotate(45deg);
   transform: translateY(-70%) rotate(45deg);
   opacity: 0;
@@ -301,6 +325,34 @@ textarea {
   opacity: 1;
 }
 /* セレクトボックス */
+.form__select-wrap {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+.form__select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0.4em;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid #ccc;
+  border-left: 2px solid #ccc;
+  transform: translateY(-50%) rotate(-135deg);
+  font-size: calc(20 / 16 * 1rem);
+  pointer-events: none;
+}
+.form__select-box {
+  padding-right: 1.1rem;
+  margin: 0 auto 0 0;
+}
+.form__select-box option {
+  color: #000;
+}
+.form__select-box + span {
+  margin-left: 0.5em;
+}
 select[disabled] {
   background-color: var(--color-light-gray);
 }
@@ -314,6 +366,44 @@ select[disabled] {
   color: #fff;
   background-color: var(--color-accent);
   text-align: center;
+}
+/* テーブル */
+.table-primary {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-primary-head {
+  background-color: var(--color-gray);
+}
+.table-primary-head th {
+  font-size: 0.8em;
+  color: #fff;
+  line-height: 1.1;
+}
+.table-primary-body:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+.table-primary-head th,
+.table-primary-body td {
+  padding: 0.5rem;
+  height: 100%;
+  border: 1px solid #eee;
+}
+/* モーダル */
+.modal {
+  position: relative;
+  padding: 2rem;
+  border: none;
+}
+.modal__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--color-accent);
+  color: #fff;
 }
 /* エラーメッセージ */
 .form__error {
@@ -347,5 +437,11 @@ select[disabled] {
   }
   .pc-only {
     display: block;
+  }
+  /* モーダル */
+  .modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }

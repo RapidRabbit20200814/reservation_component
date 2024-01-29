@@ -9,6 +9,7 @@ let selectedClass = 0;
 const props = defineProps({
   selectedInfo: Object,
   undecided: Boolean,
+  blank: Boolean,
 });
 
 // undecidedがtrueの場合は、クラスの先頭に未定を追加
@@ -24,8 +25,11 @@ const selectClass = () => {
 </script>
 
 <template>
-  <select id="class" v-model="selectedClass" @change="selectClass">
-    <option v-for="(label, index) in classes" :value="label" :key="index">{{ label }}</option>
-  </select>
+  <div class="form__select-wrap">
+    <select id="class" class="form__select-box" v-model="selectedClass" @change="selectClass">
+      <option v-if="blank" value=""></option>
+      <option v-for="(label, index) in classes" :value="label" :key="index">{{ label }}</option>
+    </select>
+  </div>
   組
 </template>

@@ -1,29 +1,21 @@
 <script setup>
-import { ref, defineProps, onMounted, watch} from 'vue';
-import { supabase } from '../../lib/supabaseClient';
+import { ref, watch } from "vue";
+import { supabase } from "../../lib/supabaseClient";
 
 // 変数定義
 const grades = ref(["1", "2", "3", "4", "5", "6"]);
 
 // 親コンポーネントから受け取る値を定義
 const props = defineProps({
-  year: Number
+  year: Number,
 });
 
 const gradeInfos = ref([]);
 
 // --------------------------------------
-//  初期表示
-// --------------------------------------
-onMounted(async () => {
-  // データ取得
-  _getGradeInfo();
-});
-
-// --------------------------------------
 //  設定
 // --------------------------------------
-const settingGradeInfo = async() => {
+const settingGradeInfo = async () => {
   // 確認メッセージ
   if (!confirm(`${props.year}年度の学年情報を設定します。よろしいですか？`)) {
     return;
@@ -34,18 +26,15 @@ const settingGradeInfo = async() => {
   _addGradeInfos();
   // メッセージ表示
   alert("設定しました");
-}
+};
 
 const _deleteGradeInfo = async () => {
   // データ削除
-  const { data, error } = await supabase
-    .from('grade_setting')
-    .delete()
-    .eq('year', `${props.year}`);
+  const { data, error } = await supabase.from("grade_setting").delete().eq("year", `${props.year}`);
   if (error) {
     console.log(error);
   }
-}
+};
 
 const _addGradeInfos = async () => {
   // gradeInfosの件数分繰り返し
@@ -62,28 +51,26 @@ const _addGradeInfos = async () => {
     gradeInfo.total_student = _nullSet(gradeInfo.total_student);
 
     // データ登録
-    const { data, error } = await supabase
-      .from('grade_setting')
-      .insert([
-        {
-          year: props.year,
-          grade: gradeInfo.grade,
-          period1_start_month: gradeInfo.period1_start_month,
-          period1_start_day: gradeInfo.period1_start_day,
-          period1_end_month: gradeInfo.period1_end_month,
-          period1_end_day: gradeInfo.period1_end_day,
-          period2_start_month: gradeInfo.period2_start_month,
-          period2_start_day: gradeInfo.period2_start_day,
-          period2_end_month: gradeInfo.period2_end_month,
-          period2_end_day: gradeInfo.period2_end_day,
-          total_student: gradeInfo.total_student
-        },
-      ]);
+    const { data, error } = await supabase.from("grade_setting").insert([
+      {
+        year: props.year,
+        grade: gradeInfo.grade,
+        period1_start_month: gradeInfo.period1_start_month,
+        period1_start_day: gradeInfo.period1_start_day,
+        period1_end_month: gradeInfo.period1_end_month,
+        period1_end_day: gradeInfo.period1_end_day,
+        period2_start_month: gradeInfo.period2_start_month,
+        period2_start_day: gradeInfo.period2_start_day,
+        period2_end_month: gradeInfo.period2_end_month,
+        period2_end_day: gradeInfo.period2_end_day,
+        total_student: gradeInfo.total_student,
+      },
+    ]);
     if (error) {
       console.log(error);
     }
   }
-}
+};
 
 // nullセット関数
 const _nullSet = (num) => {
@@ -91,15 +78,18 @@ const _nullSet = (num) => {
     num = null;
   }
   return num;
-}
+};
 
 // --------------------------------------
 //  監視（年度）
 // --------------------------------------
-watch(() => props.year, async() => {
-  // データ取得
-  _getGradeInfo();
-});
+watch(
+  () => props.year,
+  async () => {
+    // データ取得
+    _getGradeInfo();
+  }
+);
 
 // データ取得
 const _getGradeInfo = async () => {
@@ -108,11 +98,7 @@ const _getGradeInfo = async () => {
   // gradesの件数分繰り返し
   for (const grade of grades.value) {
     // データ取得
-    const { data } = await supabase
-      .from('grade_setting')
-      .select()
-      .eq('year', `${props.year}`)
-      .eq('grade', `${grade}`);
+    const { data } = await supabase.from("grade_setting").select().eq("year", `${props.year}`).eq("grade", `${grade}`);
     // データが存在した場合は、gradeInfosにセット
     if (data[0]) {
       gradeInfos.value.push(data[0]);
@@ -128,13 +114,11 @@ const _getGradeInfo = async () => {
         period2_start_day: "",
         period2_end_month: "",
         period2_end_day: "",
-        total_student: ""
+        total_student: "",
       });
     }
   }
-}
-
-
+};
 </script>
 
 <template>
@@ -143,36 +127,91 @@ const _getGradeInfo = async () => {
       <th>学年</th>
       <th>実施期間</th>
       <th>児童数</th>
-      </tr>
-    <tr v-for="(item,index) in gradeInfos" :key="index" class="grade-wrapper">
+    </tr>
+    <tr v-for="(item, index) in gradeInfos" :key="index" class="grade-wrapper">
       <td>{{ item.grade }}年</td>
       <td>
         <div class="period-wrapper">
           <div class="period-start">
-            <input type="number" name="period1_start_month" id="period1_start_month" v-model="item.period1_start_month" min="1" max="12">月
-            <input type="number" name="period1_start_day" id="period1_start_day" v-model="item.period1_start_day" min="1" max="31">日
+            <input
+              type="number"
+              name="period1_start_month"
+              id="period1_start_month"
+              v-model="item.period1_start_month"
+              min="1"
+              max="12"
+            />月
+            <input
+              type="number"
+              name="period1_start_day"
+              id="period1_start_day"
+              v-model="item.period1_start_day"
+              min="1"
+              max="31"
+            />日
           </div>
           <span class="period-bridge">〜</span>
           <div class="period-end">
-            <input type="number" name="period1_end_month" id="period1_end_month" v-model="item.period1_end_month" min="1" max="12">月
-            <input type="number" name="period1_end_day" id="period1_end_day" v-model="item.period1_end_day" min="1" max="31">日
+            <input
+              type="number"
+              name="period1_end_month"
+              id="period1_end_month"
+              v-model="item.period1_end_month"
+              min="1"
+              max="12"
+            />月
+            <input
+              type="number"
+              name="period1_end_day"
+              id="period1_end_day"
+              v-model="item.period1_end_day"
+              min="1"
+              max="31"
+            />日
           </div>
         </div>
-        <hr class="sp-only">
+        <hr class="sp-only" />
         <div class="period-wrapper">
           <div class="period-start">
-            <input type="number" name="period2_start_month" id="period2_start_month" v-model="item.period2_start_month" min="1" max="12">月
-            <input type="number" name="period2_start_day" id="period2_start_day" v-model="item.period2_start_day" min="1" max="31">日
+            <input
+              type="number"
+              name="period2_start_month"
+              id="period2_start_month"
+              v-model="item.period2_start_month"
+              min="1"
+              max="12"
+            />月
+            <input
+              type="number"
+              name="period2_start_day"
+              id="period2_start_day"
+              v-model="item.period2_start_day"
+              min="1"
+              max="31"
+            />日
           </div>
           <span class="period-bridge">〜</span>
           <div class="period-end">
-            <input type="number" name="period2_end_month" id="period2_end_month" v-model="item.period2_end_month" min="1" max="12">月
-            <input type="number" name="period2_end_day" id="period2_end_day" v-model="item.period2_end_day" min="1" max="31">日
+            <input
+              type="number"
+              name="period2_end_month"
+              id="period2_end_month"
+              v-model="item.period2_end_month"
+              min="1"
+              max="12"
+            />月
+            <input
+              type="number"
+              name="period2_end_day"
+              id="period2_end_day"
+              v-model="item.period2_end_day"
+              min="1"
+              max="31"
+            />日
           </div>
         </div>
       </td>
-      <td>
-        <input type="number" name="total_student" id="total_student" v-model="item.total_student" min="0">人</td>
+      <td><input type="number" name="total_student" id="total_student" v-model="item.total_student" min="0" />人</td>
     </tr>
   </table>
   <div class="button-area">
@@ -213,7 +252,8 @@ tr {
   grid-area: end;
   width: fit-content;
 }
-.period-start, .period-end {
+.period-start,
+.period-end {
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-end;
