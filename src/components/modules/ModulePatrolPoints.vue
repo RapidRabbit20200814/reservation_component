@@ -4,7 +4,6 @@ import { supabase } from "../../lib/supabaseClient";
 
 // 変数定義
 const points = ref([]);
-let selectedPoint = 0;
 
 // 親コンポーネントから受け取る値を定義
 const props = defineProps({
@@ -49,7 +48,7 @@ const selectPoint = (event) => {
 
 <template>
   <div v-if="displayDetail" class="form__select-wrap">
-    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+    <select id="point" class="form__select-box" v-model="props.selectedInfo.pointID" @change="selectPoint">
       <option disabled value="">選択してください</option>
       <option v-for="(item, index) in points" :value="item.point_id" :key="index">
         {{ item.point_name }}（{{ item.meeting_place }}集合）
@@ -57,7 +56,7 @@ const selectPoint = (event) => {
     </select>
   </div>
   <div v-else class="form__select-wrap">
-    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+    <select id="point" class="form__select-box" v-model="props.selectedInfo.pointID" @change="selectPoint">
       <option v-if="blank" value=""></option>
       <option v-else disabled value="">選択してください</option>
       <option v-for="(item, index) in points" :value="item.point_id" :key="index">

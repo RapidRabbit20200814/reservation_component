@@ -35,6 +35,7 @@ const deleteData = async (event) => {
     props.selectedInfo.weekDay = "";
     // 親コンポーネントにカスタムイベントを伝える
     emits("delete", true);
+
     // メッセージ表示
     alert("予約を取り消しました。");
   } catch (error) {
