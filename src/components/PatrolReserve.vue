@@ -4,6 +4,7 @@ import { ref } from "vue";
 import ModuleHeader from "./modules/ModuleHeader.vue";
 import ModuleGrades from "./modules/ModuleGrades.vue";
 import ModulePatrolPoints from "./modules/ModulePatrolPoints.vue";
+import ModulePatrolPointMap from "./modules/ModulePatrolPointMap.vue";
 import ModulePatrolSchedule from "./modules/ModulePatrolSchedule.vue";
 import ModulePatrolReserveDialog from "./modules/ModulePatrolReserveDialog.vue";
 import ModulePatrolStorageView from "./modules/ModulePatrolStorageView.vue";
@@ -26,6 +27,25 @@ const selectedInfo = ref({
 
 // [ModulePatrolSchedule]のインスタンスを保持する ref
 const scheduleRef = ref(null);
+
+// --------------------------------------
+//  防パトマップを開く
+// --------------------------------------
+const openMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.showModal();
+};
+// --------------------------------------
+//  防パトマップを閉じる
+// --------------------------------------
+const closeMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.close();
+};
+
+const selectPoint = () => {
+  closeMap();
+};
 
 // [ModuleSchedule]カレンダーの日付クリック
 const updateDate = (date) => {
@@ -56,6 +76,11 @@ const updateSchedule = () => {
         <li v-if="selectedInfo.grade">
           <h2>パトロールのエリアを選んでください</h2>
           <ModulePatrolPoints :selectedInfo="selectedInfo" :displayDetail="true" />
+          <button type="button" class="button button-small button-map" @click="openMap">地図から選ぶ</button>
+          <dialog id="map-modal" class="modal">
+            <button type="button" class="modal__close" @click="closeMap">✕</button>
+            <ModulePatrolPointMap :selectedInfo="selectedInfo" @select="selectPoint" />
+          </dialog>
         </li>
         <li v-if="selectedInfo.pointID">
           <h2>パトロールを実施する日を選んでください</h2>

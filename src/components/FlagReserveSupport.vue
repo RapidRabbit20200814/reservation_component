@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 import ModuleHeader from "./modules/ModuleHeader.vue";
 import ModuleFlagPoints from "./modules/ModuleFlagPoints.vue";
+import ModuleFlagPointMap from "./modules/ModuleFlagPointMap.vue";
 import ModuleCalendar from "./modules/ModuleCalendar.vue";
 import ModuleFlagReserveDialog from "./modules/ModuleFlagReserveDialog.vue";
 import ModuleFlagStorageView from "./modules/ModuleFlagStorageView.vue";
@@ -25,6 +26,25 @@ const selectedInfo = ref({
 
 // [ModuleCalendar]のインスタンスを保持する
 const calendarRef = ref(null);
+
+// --------------------------------------
+//  立ち位置マップを開く
+// --------------------------------------
+const openMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.showModal();
+};
+// --------------------------------------
+//  立ち位置マップを閉じる
+// --------------------------------------
+const closeMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.close();
+};
+
+const selectPoint = () => {
+  closeMap();
+};
 
 // [ModuleCalendar]カレンダーの日付クリック
 const updateDate = (date) => {
@@ -51,6 +71,11 @@ const updateCalendar = () => {
         <li>
           <h2>旗当番の立ち位置を選んでください</h2>
           <ModuleFlagPoints :selectedInfo="selectedInfo" />
+          <button type="button" class="button button-small button-map" @click="openMap">地図から選ぶ</button>
+          <dialog id="map-modal" class="modal">
+            <button type="button" class="modal__close" @click="closeMap">✕</button>
+            <ModuleFlagPointMap :selectedInfo="selectedInfo" @select="selectPoint" :page="page" />
+          </dialog>
         </li>
         <li v-if="selectedInfo.pointID">
           <h2>旗当番を実施する日を選んでください</h2>

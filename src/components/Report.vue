@@ -7,7 +7,9 @@ import ModuleGrades from "./modules/ModuleGrades.vue";
 import ModuleClasses from "./modules/ModuleClasses.vue";
 import ModuleStudentNumbers from "./modules/ModuleStudentNumbers.vue";
 import ModuleFlagPoints from "./modules/ModuleFlagPoints.vue";
+import ModuleFlagPointMap from "./modules/ModuleFlagPointMap.vue";
 import ModulePatrolPoints from "./modules/ModulePatrolPoints.vue";
+import ModulePatrolPointMap from "./modules/ModulePatrolPointMap.vue";
 import ModuleUrgencies from "./modules/ModuleUrgencies.vue";
 
 const selectedInfo = ref({
@@ -31,9 +33,37 @@ let errorDate = ref(false);
 let confirmMessage = ref(true);
 
 // --------------------------------------
+//  立ち位置マップ/防パトマップを開く
+// --------------------------------------
+const openMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.showModal();
+};
+// --------------------------------------
+//  立ち位置マップ/防パトマップを閉じる
+// --------------------------------------
+const closeMap = () => {
+  const modal = document.querySelector("#map-modal");
+  modal.close();
+};
+
+const selectPoint = () => {
+  closeMap();
+};
+
+// --------------------------------------
+//  立ち位置ポイントをクリアする
+// --------------------------------------
+const pointClear = () => {
+  selectedInfo.value.pointID = "";
+  selectedInfo.value.pointNo = "";
+};
+
+// --------------------------------------
 //  登録
 // --------------------------------------
 const register = async () => {
+  console.log(selectedInfo.value);
   // 必須チェック
   errorGrade.value = false;
   errorClass.value = false;
@@ -64,16 +94,21 @@ const register = async () => {
       return;
     }
 
+    // 数値に変換
+    const NUMBER = (value) => {
+      return Number(value);
+    };
+
     // 報告データを登録
     const { data, error } = await supabase
       .from("report")
       .upsert([
         {
-          grade: selectedInfo.value.grade,
-          class: selectedInfo.value.class,
-          student_no: selectedInfo.value.number,
-          work_type: type.value,
-          point_id: selectedInfo.value.pointID,
+          grade: NUMBER(selectedInfo.value.grade),
+          class: NUMBER(selectedInfo.value.class),
+          student_no: NUMBER(selectedInfo.value.number),
+          work_type: NUMBER(type.value),
+          point_id: NUMBER(selectedInfo.value.pointID),
           implementation_date: implementationDate.value,
           not_implementation: notImplementationCheck.value,
           comment: comment.value,
@@ -181,11 +216,11 @@ const register = async () => {
           <dd class="form__data">
             <ul class="form__radio-wrapper">
               <li class="form__radio-item">
-                <input type="radio" id="type1" name="type" value="1" v-model="type" />
+                <input type="radio" id="type1" name="type" value="1" v-model="type" @change="pointClear" />
                 <label for="type1">朝旗</label>
               </li>
               <li class="form__radio-item">
-                <input type="radio" id="type2" name="type" value="2" v-model="type" />
+                <input type="radio" id="type2" name="type" value="2" v-model="type" @change="pointClear" />
                 <label for="type2">防パト</label>
               </li>
             </ul>
@@ -197,6 +232,11 @@ const register = async () => {
           </dt>
           <dd class="form__data">
             <ModuleFlagPoints :selectedInfo="selectedInfo" />
+            <button type="button" class="button button-small button-map" @click="openMap">地図から選ぶ</button>
+            <dialog id="map-modal" class="modal">
+              <button type="button" class="modal__close" @click="closeMap">✕</button>
+              <ModuleFlagPointMap :selectedInfo="selectedInfo" @select="selectPoint" :page="page" />
+            </dialog>
             <p v-if="errorPoint" class="form__error">立ち位置を入力してください</p>
           </dd>
         </div>
@@ -206,6 +246,11 @@ const register = async () => {
           </dt>
           <dd class="form__data">
             <ModulePatrolPoints :selectedInfo="selectedInfo" :displayDetail="false" />
+            <button type="button" class="button button-small button-map" @click="openMap">地図から選ぶ</button>
+            <dialog id="map-modal" class="modal">
+              <button type="button" class="modal__close" @click="closeMap">✕</button>
+              <ModulePatrolPointMap :selectedInfo="selectedInfo" @select="selectPoint" />
+            </dialog>
             <p v-if="errorPoint" class="form__error">エリアを入力してください</p>
           </dd>
         </div>
@@ -293,6 +338,11 @@ textarea {
 .form__checkbox-wrapper {
   display: inline-block;
   margin-top: 0.5rem;
+}
+.button-map {
+  display: block;
+  margin-top: 0.5rem;
+  margin-left: 0;
 }
 .urgency-message {
   margin-top: 1rem;

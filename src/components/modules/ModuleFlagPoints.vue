@@ -4,7 +4,6 @@ import { supabase } from "../../lib/supabaseClient";
 
 // 変数定義
 const points = ref([]);
-let selectedPoint = 0;
 
 // 親コンポーネントから受け取る値を定義
 const props = defineProps({
@@ -12,7 +11,9 @@ const props = defineProps({
   blank: Boolean,
 });
 
-// 立ち位置情報取得
+// --------------------------------------
+//  立ち位置情報取得
+// --------------------------------------
 const getPoints = async () => {
   const { data } = await supabase.from("flag_point").select();
   // deleted_flgがtrue以外の行のみを抽出
@@ -28,11 +29,16 @@ const getPoints = async () => {
   });
 };
 
+// --------------------------------------
+//  初期表示
+// --------------------------------------
 onMounted(() => {
   getPoints();
 });
 
-// 立ち位置選択
+// --------------------------------------
+//  立ち位置選択
+// --------------------------------------
 const selectPoint = (event) => {
   // 選択された立ち位置のindexを取得
   const index = event.target.selectedIndex;
@@ -51,7 +57,7 @@ const selectPoint = (event) => {
 
 <template>
   <div class="form__select-wrap">
-    <select id="point" class="form__select-box" v-model="selectedPoint" @change="selectPoint">
+    <select id="point" class="form__select-box" v-model="props.selectedInfo.pointID" @change="selectPoint">
       <option v-if="blank" value=""></option>
       <option v-else disabled value="">選択してください</option>
       <option v-for="(item, index) in points" :value="item.point_id" :key="index">
