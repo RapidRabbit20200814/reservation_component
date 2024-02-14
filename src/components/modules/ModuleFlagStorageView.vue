@@ -68,6 +68,11 @@ onMounted(() => {
 const _storageView = () => {
   // local storageから既存のデータを取得
   storageData.value = JSON.parse(localStorage.getItem("myFlagReservations"));
+  // local storageにデータがない場合は、空の配列をセット
+  if (!storageData.value) {
+    storageData.value = [];
+  }
+  console.log(storageData.value);
 };
 
 // --------------------------------------
@@ -135,6 +140,22 @@ const _deleteDBData = async (deleteID) => {
     </tr>
   </table>
   <p v-else class="reserve-message">予約情報はありません</p>
+  <div class="inner-s supplement-message-wrapper">
+    <p class="supplement-message">
+      このブラウザ（Google Chrome、Safari、Microsoft Edgeなど）で予約した内容が表示されています。
+    </p>
+    <p class="supplement-message">
+      前に予約した情報が表示されていない場合は、予約した時と同じデバイス（スマホ、タブレット、パソコンなど）、同じブラウザでこのページを開くと予約情報が表示されます。
+    </p>
+    <p class="supplement-message">
+      「予約を取消したいのに予約情報が表示されない」などでお困りの場合は、<a
+        href="https://tisetusyou-pta.org/inquiry"
+        target="_blank"
+        rel="noopener"
+        >こちら</a
+      >よりお問い合わせください。
+    </p>
+  </div>
 </template>
 
 <style scoped>
@@ -187,6 +208,16 @@ tr + tr {
 }
 .reserve-message {
   text-align: center;
+}
+.supplement-message-wrapper {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+}
+.supplement-message + .supplement-message {
+  margin-top: 0.4rem;
+}
+.supplement-message a {
+  text-decoration: underline;
 }
 /* PC */
 @media (min-width: 768px) {

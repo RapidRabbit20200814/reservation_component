@@ -21,6 +21,7 @@ const notImplementCheck = ref(false);
 const undecided = ref(false);
 let dateAscSort = ref(true);
 let pointAscSort = ref(true);
+let gradeAscSort = ref(true);
 let classAscSort = ref(true);
 let numberAscSort = ref(true);
 let urgencyAscSort = ref(false);
@@ -138,6 +139,7 @@ const search = async () => {
   searchType.value = type.value;
   dateAscSort.value = true;
   pointAscSort.value = true;
+  gradeAscSort.value = true;
   classAscSort.value = true;
   numberAscSort.value = true;
   urgencyAscSort.value = false;
@@ -200,7 +202,7 @@ const sortPoint = (asc) => {
   });
   pointAscSort.value = !asc;
 };
-const sortClass = (asc) => {
+const sortGrade = (asc) => {
   report.value.sort((a, b) => {
     if (asc) {
       if (a.grade < b.grade) {
@@ -215,10 +217,10 @@ const sortClass = (asc) => {
       if (a.class > b.class) {
         return 1;
       }
-      if (a.student_no < b.student_no) {
+      if (Number(a.student_no) < Number(b.student_no)) {
         return -1;
       }
-      if (a.student_no > b.student_no) {
+      if (Number(a.student_no) > Number(b.student_no)) {
         return 1;
       }
     } else {
@@ -234,10 +236,43 @@ const sortClass = (asc) => {
       if (a.class > b.class) {
         return -1;
       }
-      if (a.student_no < b.student_no) {
+      if (Number(a.student_no) < Number(b.student_no)) {
         return 1;
       }
-      if (a.student_no > b.student_no) {
+      if (Number(a.student_no) > Number(b.student_no)) {
+        return -1;
+      }
+    }
+    return 0;
+  });
+  gradeAscSort.value = !asc;
+};
+const sortClass = (asc) => {
+  report.value.sort((a, b) => {
+    if (asc) {
+      if (a.class < b.class) {
+        return -1;
+      }
+      if (a.class > b.class) {
+        return 1;
+      }
+      if (Number(a.student_no) < Number(b.student_no)) {
+        return -1;
+      }
+      if (Number(a.student_no) > Number(b.student_no)) {
+        return 1;
+      }
+    } else {
+      if (a.class < b.class) {
+        return 1;
+      }
+      if (a.class > b.class) {
+        return -1;
+      }
+      if (Number(a.student_no) < Number(b.student_no)) {
+        return 1;
+      }
+      if (Number(a.student_no) > Number(b.student_no)) {
         return -1;
       }
     }
@@ -248,17 +283,17 @@ const sortClass = (asc) => {
 const sortNumber = (asc) => {
   report.value.sort((a, b) => {
     if (asc) {
-      if (a.student_no < b.student_no) {
+      if (Number(a.student_no) < Number(b.student_no)) {
         return -1;
       }
-      if (a.student_no > b.student_no) {
+      if (Number(a.student_no) > Number(b.student_no)) {
         return 1;
       }
     } else {
-      if (a.student_no < b.student_no) {
+      if (Number(a.student_no) < Number(b.student_no)) {
         return 1;
       }
-      if (a.student_no > b.student_no) {
+      if (Number(a.student_no) > Number(b.student_no)) {
         return -1;
       }
     }
@@ -531,6 +566,9 @@ const deleteReport = async (id) => {
             <th v-else class="table-point">
               <button type="button" class="underlined" @click="sortPoint(pointAscSort)">エリア</button>
             </th>
+            <th class="table-grade">
+              <button type="button" class="underlined" @click="sortGrade(gradeAscSort)">学年</button>
+            </th>
             <th class="table-class">
               <button type="button" class="underlined" @click="sortClass(classAscSort)">クラス</button>
             </th>
@@ -553,7 +591,8 @@ const deleteReport = async (id) => {
             <td class="table-date">{{ item.implementation_date }}</td>
             <td v-if="searchType == '1'" class="table-point">{{ item.point_no }}：{{ item.point_name }}</td>
             <td v-else class="table-point">{{ item.point_name }}</td>
-            <td class="table-class">{{ item.grade }}-{{ item.class }}</td>
+            <td class="table-grade">{{ item.grade }}</td>
+            <td class="table-class">{{ item.class }}</td>
             <td class="table-number">{{ item.student_no }}</td>
             <td class="table-comment">
               {{ item.comment }}
@@ -651,9 +690,9 @@ textarea {
 .result-head,
 .result-body {
   display: grid;
-  grid-template-columns: 30px 120px 200px 70px 40px minmax(200px, 1fr) 30px 200px 40px;
+  grid-template-columns: 30px 120px 200px 40px 40px 40px minmax(200px, 1fr) 30px 200px 40px;
   grid-template-rows: auto;
-  grid-template-areas: "not-implementation date point class number comment urgency admin-memo delete";
+  grid-template-areas: "not-implementation date point grade class number comment urgency admin-memo delete";
 }
 .result-head th {
   display: flex;
@@ -668,6 +707,9 @@ textarea {
 }
 .table-point {
   grid-area: point;
+}
+.table-grade {
+  grid-area: grade;
 }
 .table-class {
   grid-area: class;
@@ -702,6 +744,7 @@ textarea {
 .table-not-implementation,
 .table-date,
 .table-point,
+.table-grade,
 .table-class,
 .table-number,
 .table-urgency,

@@ -8,7 +8,7 @@ import ModuleYears from "../modules/ModuleYears.vue";
 let year = ref("");
 let type = ref("1");
 let report = ref([]);
-let pluralCount = ref(5);
+let pluralCount = ref(3);
 let totallingResult = ref([]);
 let pluralResult = ref([]);
 let classAscSort = ref(true);
@@ -18,13 +18,25 @@ let allGrades = ref({
   reserveCount: 0,
   reserveRate: 0,
   reportCount: 0,
-  reportCount0: 0,
-  reportRate0: 0,
-  reportCount1: 0,
-  reportRate1: 0,
-  reportCount2: 0,
-  reportRate2: 0,
+  reportNoCount: 0,
+  reportRate: 0,
 });
+
+// --------------------------------------
+//  データ初期化
+// --------------------------------------
+const clearData = async () => {
+  totallingResult.value = [];
+  report.value = [];
+  allGrades.value = {
+    totalStudent: 0,
+    reserveCount: 0,
+    reserveRate: 0,
+    reportCount: 0,
+    reportNoCount: 0,
+    reportRate: 0,
+  };
+};
 
 // --------------------------------------
 //  学年情報取得
@@ -55,7 +67,8 @@ const reportSelect = async (startDate, endDate) => {
       work_type,
       grade,
       class,
-      student_no
+      student_no,
+      not_implementation
   `;
   // クエリを実行
   const reportResponse = await supabase
@@ -118,13 +131,11 @@ const reserveSelect = async (startDate, endDate) => {
 
         // 予約率を計算
         if (item.total_student) {
-          item.reserveRate = Math.round((reserveCount / (item.total_student * 2)) * 100);
+          item.reserveRate = Math.round((reserveCount / item.total_student) * 100);
         }
         // 全学年の予約率を計算
         if (allGrades.value.totalStudent) {
-          allGrades.value.reserveRate = Math.round(
-            (allGrades.value.reserveCount / (allGrades.value.totalStudent * 2)) * 100
-          );
+          allGrades.value.reserveRate = Math.round((allGrades.value.reserveCount / allGrades.value.totalStudent) * 100);
         }
       }
     } catch (error) {
@@ -139,69 +150,27 @@ const reserveSelect = async (startDate, endDate) => {
 const reportCalc = async (startDate, endDate) => {
   // 初期化
   allGrades.value.reportCount = 0;
-  allGrades.value.reportCount0 = 0;
-  allGrades.value.reportRate0 = 0;
-  allGrades.value.reportCount1 = 0;
-  allGrades.value.reportRate1 = 0;
-  allGrades.value.reportCount2 = 0;
-  allGrades.value.reportRate2 = 0;
-  // ④ 報告件数、実施率を計算
+  allGrades.value.reportNoCount = 0;
+  allGrades.value.reportRate = 0;
+  // ④ 報告件数、報告率を計算
   for (const item of totallingResult.value) {
     // 報告件数
     item.reportCount = report.value.filter((row) => row.grade == item.grade && row.work_type == type.value).length;
     // 全学年の報告件数
     allGrades.value.reportCount += item.reportCount;
-    // 報告人数
-    const reportPeople = report.value
-      .filter((row) => row.grade == item.grade && row.work_type == type.value)
-      .reduce((acc, cur) => {
-        const key = `${cur.grade}-${cur.class}-${cur.student_no}`;
-        if (!acc[key]) {
-          acc[key] = {
-            grade: cur.grade,
-            class: cur.class,
-            student_no: cur.student_no,
-            count: 1,
-          };
-        } else {
-          acc[key].count++;
-        }
-        return acc;
-      }, {});
-
-    // 報告1回の件数
-    item.reportCount1 = Object.values(reportPeople).filter((item) => {
-      return item.count === 1;
-    }).length;
-    // 全学年の報告1回の件数
-    allGrades.value.reportCount1 += item.reportCount1;
-
-    // 報告2回以上の件数
-    item.reportCount2 = Object.values(reportPeople).filter((item) => {
-      return item.count >= 2;
-    }).length;
-    // 全学年の報告2回以上の件数
-    allGrades.value.reportCount2 += item.reportCount2;
-
+    // 未実施件数
+    item.reportNoCount = report.value.filter(
+      (row) => row.grade == item.grade && row.work_type == type.value && row.not_implementation == true
+    ).length;
+    // 全学年の未実施件数
+    allGrades.value.reportNoCount += item.reportNoCount;
+    // 報告率
     if (item.total_student) {
-      // 報告1回の割合
-      item.reportRate1 = Math.round((item.reportCount1 / item.total_student) * 100);
-      // 報告2回の割合
-      item.reportRate2 = Math.round((item.reportCount2 / item.total_student) * 100);
-      // 報告0回の件数と割合
-      item.reportCount0 = item.total_student - item.reportCount1 - item.reportCount2;
-      item.reportRate0 = Math.round((item.reportCount0 / item.total_student) * 100);
+      item.reportRate = Math.round((item.reportCount / item.total_student) * 100);
     }
-
+    // 全学年の報告率
     if (allGrades.value.totalStudent) {
-      // 全学年の報告1回の割合
-      allGrades.value.reportRate1 = Math.round((allGrades.value.reportCount1 / allGrades.value.totalStudent) * 100);
-      // 全学年の報告2回の割合
-      allGrades.value.reportRate2 = Math.round((allGrades.value.reportCount2 / allGrades.value.totalStudent) * 100);
-      // 全学年の報告0回の件数と割合
-      allGrades.value.reportCount0 =
-        allGrades.value.totalStudent - allGrades.value.reportCount1 - allGrades.value.reportCount2;
-      allGrades.value.reportRate0 = Math.round((allGrades.value.reportCount0 / allGrades.value.totalStudent) * 100);
+      allGrades.value.reportRate = Math.round((allGrades.value.reportCount / allGrades.value.totalStudent) * 100);
     }
   }
 };
@@ -283,6 +252,7 @@ const selectedYear = async (selectedYear) => {
   }
 
   try {
+    await clearData();
     await gradeSelect();
     await totalling();
     await searchPlural();
@@ -354,7 +324,7 @@ const sortTotal = (asc) => {
   </header>
 
   <main>
-    <div class="inner">
+    <div class="inner-s">
       <div class="totalling__header">
         <ModuleYears
           :startYear="2023"
@@ -382,11 +352,9 @@ const sortTotal = (asc) => {
               <th class="table-period">実施期間</th>
               <th class="table-total-student">児童数</th>
               <th class="table-reserve-count">予約数</th>
-              <th class="table-reserve-rate">予約率<span class="small">予約数÷(児童数✕2回)</span></th>
-              <th class="table-report-count">報告数</th>
-              <th class="table-report-rate0">報告0回</th>
-              <th class="table-report-rate1">1回</th>
-              <th class="table-report-rate2">2回以上</th>
+              <th class="table-reserve-rate">予約率</th>
+              <th class="table-report-count">報告数<span class="small">(未実施数)</span></th>
+              <th class="table-report-rate">報告率</th>
             </tr>
             <tr v-for="item in totallingResult" :key="item.id" class="totalling-result-body table-primary-body">
               <td class="table-grade">{{ item.grade }}年</td>
@@ -407,18 +375,11 @@ const sortTotal = (asc) => {
               <td class="table-reserve-rate">
                 <span v-if="item.total_student">{{ item.reserveRate }}%</span>
               </td>
-              <td class="table-report-count">{{ item.reportCount }}件</td>
-              <td class="table-report-rate0">
-                <span v-if="item.total_student">{{ item.reportCount0 }}人</span>
-                <span v-if="item.total_student" class="rate">({{ item.reportRate0 }}%)</span>
+              <td class="table-report-count">
+                {{ item.reportCount }}件 <span class="small">({{ item.reportNoCount }})</span>
               </td>
-              <td class="table-report-rate1">
-                {{ item.reportCount1 }}人
-                <span v-if="item.total_student" class="rate">({{ item.reportRate1 }}%)</span>
-              </td>
-              <td class="table-report-rate2">
-                {{ item.reportCount2 }}人
-                <span v-if="item.total_student" class="rate">({{ item.reportRate2 }}%)</span>
+              <td class="table-report-rate">
+                <span v-if="item.total_student">{{ item.reportRate }}%</span>
               </td>
             </tr>
             <tr class="totalling-result-body table-primary-body">
@@ -431,18 +392,11 @@ const sortTotal = (asc) => {
               <td class="table-reserve-rate">
                 <span v-if="allGrades.totalStudent">{{ allGrades.reserveRate }}%</span>
               </td>
-              <td class="table-report-count">{{ allGrades.reportCount }}件</td>
-              <td class="table-report-rate0">
-                <span v-if="allGrades.totalStudent">{{ allGrades.reportCount0 }}人</span>
-                <span v-if="allGrades.totalStudent" class="rate">({{ allGrades.reportRate0 }}%)</span>
+              <td class="table-report-count">
+                {{ allGrades.reportCount }}件<span class="small">({{ allGrades.reportNoCount }})</span>
               </td>
-              <td class="table-report-rate1">
-                {{ allGrades.reportCount1 }}人
-                <span v-if="allGrades.totalStudent" class="rate">({{ allGrades.reportRate1 }}%)</span>
-              </td>
-              <td class="table-report-rate2">
-                {{ allGrades.reportCount2 }}人
-                <span v-if="allGrades.totalStudent" class="rate">({{ allGrades.reportRate2 }}%)</span>
+              <td class="table-report-rate">
+                <span v-if="allGrades.totalStudent">{{ allGrades.reportRate }}%</span>
               </td>
             </tr>
           </table>
@@ -498,21 +452,14 @@ const sortTotal = (asc) => {
 .totalling-result-head,
 .totalling-result-body {
   display: grid;
-  grid-template-columns:
-    50px 140px 80px minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr)
-    minmax(80px, 1fr);
+  grid-template-columns: 50px 140px 80px minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr);
   grid-template-rows: 1fr;
   align-items: center;
 }
 .small {
   display: block;
-  font-size: 10px;
-}
-.rate {
-  display: block;
   font-size: 0.8em;
 }
-
 .plural {
   margin-top: 4rem;
 }

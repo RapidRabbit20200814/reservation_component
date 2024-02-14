@@ -18,6 +18,7 @@ const memoCheck = ref(false);
 const undecided = ref(true);
 let dateAscSort = ref(true);
 let pointAscSort = ref(true);
+let gradeAscSort = ref(true);
 let classAscSort = ref(true);
 let numberAscSort = ref(true);
 let selectedID = ref("");
@@ -128,7 +129,7 @@ const search = async () => {
     return { ...reserveItem, ...matchingPoint };
   });
 
-  // ①実施予定日の年・月・日（降順）、②立ち位置（昇順）、③クラス、④番号の順にソート
+  // ①実施予定日の年・月・日（降順）、②立ち位置（昇順）、③学年、④クラス、⑤番号の順にソート
   mergedData.sort((a, b) => {
     if (a.year < b.year) {
       return 1;
@@ -154,6 +155,12 @@ const search = async () => {
     if (a.point_id < b.point_id) {
       return -1;
     }
+    if (a.grade > b.grade) {
+      return 1;
+    }
+    if (a.grade < b.grade) {
+      return -1;
+    }
     if (a.class > b.class) {
       return 1;
     }
@@ -166,6 +173,16 @@ const search = async () => {
     if (a.student_no < b.student_no) {
       return -1;
     }
+    if (a.student_no == "未定" || b.student_no == "未定") {
+      return a.student_no == "未定" ? 1 : -1;
+    } else {
+      if (Number(a.student_no) < Number(b.student_no)) {
+        return -1;
+      }
+      if (Number(a.student_no) > Number(b.student_no)) {
+        return 1;
+      }
+    }
     return 0;
   });
 
@@ -176,6 +193,7 @@ const search = async () => {
   searchType.value = type.value;
   dateAscSort.value = true;
   pointAscSort.value = true;
+  gradeAscSort.value = true;
   classAscSort.value = true;
   numberAscSort.value = true;
 };
@@ -250,7 +268,7 @@ const sortPoint = (asc) => {
   });
   pointAscSort.value = !asc;
 };
-const sortClass = (asc) => {
+const sortGrade = (asc) => {
   reserve.value.sort((a, b) => {
     if (asc) {
       if (a.grade < b.grade) {
@@ -265,11 +283,15 @@ const sortClass = (asc) => {
       if (a.class > b.class) {
         return 1;
       }
-      if (a.student_no < b.student_no) {
-        return -1;
-      }
-      if (a.student_no > b.student_no) {
-        return 1;
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? 1 : -1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return -1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return 1;
+        }
       }
     } else {
       if (a.grade < b.grade) {
@@ -284,11 +306,56 @@ const sortClass = (asc) => {
       if (a.class > b.class) {
         return -1;
       }
-      if (a.student_no < b.student_no) {
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? -1 : 1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return 1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return -1;
+        }
+      }
+    }
+    return 0;
+  });
+  gradeAscSort.value = !asc;
+};
+const sortClass = (asc) => {
+  reserve.value.sort((a, b) => {
+    if (asc) {
+      if (a.class < b.class) {
+        return -1;
+      }
+      if (a.class > b.class) {
         return 1;
       }
-      if (a.student_no > b.student_no) {
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? 1 : -1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return -1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return 1;
+        }
+      }
+    } else {
+      if (a.class < b.class) {
+        return 1;
+      }
+      if (a.class > b.class) {
         return -1;
+      }
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? -1 : 1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return 1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return -1;
+        }
       }
     }
     return 0;
@@ -298,18 +365,26 @@ const sortClass = (asc) => {
 const sortNumber = (asc) => {
   reserve.value.sort((a, b) => {
     if (asc) {
-      if (a.student_no < b.student_no) {
-        return -1;
-      }
-      if (a.student_no > b.student_no) {
-        return 1;
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? 1 : -1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return -1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return 1;
+        }
       }
     } else {
-      if (a.student_no < b.student_no) {
-        return 1;
-      }
-      if (a.student_no > b.student_no) {
-        return -1;
+      if (a.student_no == "未定" || b.student_no == "未定") {
+        return a.student_no == "未定" ? -1 : 1;
+      } else {
+        if (Number(a.student_no) < Number(b.student_no)) {
+          return 1;
+        }
+        if (Number(a.student_no) > Number(b.student_no)) {
+          return -1;
+        }
       }
     }
     return 0;
@@ -511,6 +586,9 @@ const deleteReserve = async (id) => {
             <th v-else class="table-point">
               <button type="button" class="underlined" @click="sortPoint(pointAscSort)">エリア</button>
             </th>
+            <th class="table-grade">
+              <button type="button" class="underlined" @click="sortGrade(gradeAscSort)">学年</button>
+            </th>
             <th class="table-class">
               <button type="button" class="underlined" @click="sortClass(classAscSort)">クラス</button>
             </th>
@@ -526,7 +604,8 @@ const deleteReserve = async (id) => {
             <td class="table-date">{{ item.year }}-{{ item.month }}-{{ item.day }}</td>
             <td v-if="searchType == '1'" class="table-point">{{ item.point_no }}：{{ item.point_name }}</td>
             <td v-else class="table-point">{{ item.point_name }}</td>
-            <td class="table-class">{{ item.grade }}-{{ item.class }}</td>
+            <td class="table-grade">{{ item.grade }}</td>
+            <td class="table-class">{{ item.class }}</td>
             <td class="table-number">{{ item.student_no }}</td>
             <td class="table-admin-memo">
               <span>{{ item.admin_memo }}</span>
@@ -552,7 +631,7 @@ const deleteReserve = async (id) => {
           <textarea
             name="modal_admin_memo"
             id="modal_admin_memo"
-            placeholder="【2024/1/23 名前】テスト用のダミーデータです"
+            placeholder="【2024/1/23 名前】メモの内容"
             class="form__textarea"
             v-model="modalAdminMemo"
           ></textarea>
@@ -619,15 +698,18 @@ textarea {
 .result-head,
 .result-body {
   display: grid;
-  grid-template-columns: 120px 200px 70px 60px minmax(200px, 1fr) 60px;
+  grid-template-columns: 120px 200px 60px 60px 60px minmax(200px, 1fr) 60px;
   grid-template-rows: auto;
-  grid-template-areas: "date point class number admin-memo delete";
+  grid-template-areas: "date point grade class number admin-memo delete";
 }
 .table-date {
   grid-area: date;
 }
 .table-point {
   grid-area: point;
+}
+.table-grade {
+  grid-area: grade;
 }
 .table-class {
   grid-area: class;
@@ -656,6 +738,7 @@ textarea {
 .table-not-implementation,
 .table-date,
 .table-point,
+.table-grade,
 .table-class,
 .table-number,
 .table-urgency,

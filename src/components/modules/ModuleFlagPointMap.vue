@@ -176,7 +176,7 @@ watch(
   left: 50%;
   transform: translate(-50%, -50%) rotate(45deg);
   width: 2px;
-  height: 1.6em;
+  height: 2.2em;
   background-color: transparent;
 }
 .map-point-switch.off::after {
