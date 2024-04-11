@@ -10,7 +10,7 @@
   <div class="inner header-inner">
     <h1>{{title}}<span v-if="subtitle" class="subtitle"> - {{ subtitle }} -</span></h1>
     <div class="button-group">
-      <a href="#" target="_blank" rel="noopener" class="button button-white button-icon button-small"><img src="../../assets/img/faq.svg" alt="クエスチョンマーク" width="16" height="16">よくあるご質問<span class="pc-only">はこちら</span></a>
+      <a href="https://tisetusyou-pta.org/flag-patrol-faq" target="_blank" rel="noopener" class="button button-white button-icon button-small"><img src="../../assets/img/faq.svg" alt="クエスチョンマーク" width="16" height="16">よくあるご質問<span class="pc-only">はこちら</span></a>
       <a href="https://tisetusyou-pta.org/inquiry" target="_blank" rel="noopener" class="button button-white button-icon button-small"><img src="../../assets/img/mail.svg" alt="メールマーク" width="16" height="16">お問い合わせ<span class="pc-only">はこちら</span></a>
     </div>
   </div>

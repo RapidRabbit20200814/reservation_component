@@ -3,9 +3,12 @@
 //   cron用のDBアクセス処理
 // ====================================
 
+// ====================================
+//   LOGデータの挿入
+// ====================================
 
-$supabaseUrl = "https://tchxpyzlvuppoglfodew.supabase.co";
-$supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjaHhweXpsdnVwcG9nbGZvZGV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU2MDQ0NTEsImV4cCI6MjAxMTE4MDQ1MX0.zsWNVXkR5fDAsEFloY9kqoB2m7UVWjZMVkRQ3y4GLn4";
+$supabaseUrl = "https://lpwlxqfealimlwttkamp.supabase.co";
+$supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwd2x4cWZlYWxpbWx3dHRrYW1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTEwNzAwNDMsImV4cCI6MjAyNjY0NjA0M30.VEai5wR0shK8KiWA_tzqXvGAkOO39uEx66yfUdHl9vA";
 
 // データの作成
 $data = array(
@@ -34,4 +37,53 @@ curl_close($ch);
 
 // レスポンスの表示
 echo $response;
+
+// ====================================
+//   DBバックアップ
+// ====================================
+
+// バックアップを保存するディレクトリ
+$backupDirectory = "./www/reservation.tisetusyou-pta.org/backup/";
+
+// バックアップするテーブルのリスト
+$tables = array("flag_exclude", "flag_point", "flag_reservation", "grade_setting", "patrol_exclude", "patrol_point", "patrol_reservation", "report");
+
+// 各テーブルのデータをエクスポートしてCSVファイルに書き込む
+foreach ($tables as $table) {
+    // データを取得するためのAPIエンドポイント
+    $apiEndpoint = $supabaseUrl . "/rest/v1/" . $table . "?apikey=" . $supabaseKey;
+
+    // データを取得
+    $data = file_get_contents($apiEndpoint);
+
+    if ($data === false) {
+        echo "Failed to fetch data from Supabase API for table: $table";
+        continue; // 次のテーブルへ
+    }
+
+    // データをCSV形式に変換
+    $rows = json_decode($data, true);
+
+    $csvFilePath = $backupDirectory . $table . ".csv";
+
+    // CSVファイルにデータを書き込む
+    $csvFile = fopen($csvFilePath, 'w');
+    if ($csvFile === false) {
+        echo "Failed to open CSV file for writing for table: $table";
+        continue; // 次のテーブルへ
+    }
+
+    // CSVヘッダを書き込む
+    fputcsv($csvFile, array_keys($rows[0]));
+
+    // データを書き込む
+    foreach ($rows as $row) {
+        fputcsv($csvFile, $row);
+    }
+
+    // CSVファイルを閉じる
+    fclose($csvFile);
+
+    echo "Data successfully backed up for table: $table to: $csvFilePath\n";
+}
 ?>

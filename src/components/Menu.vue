@@ -10,7 +10,7 @@ import ModuleHeader from "./modules/ModuleHeader.vue";
     <div class="inner-xs">
       <ol class="menu-list">
         <li>
-          <a href="#" target="_blank" rel="noopener" class="button">1. 実施手順を確認する</a>
+          <a href="https://tisetusyou-pta.org/flag-patrol-procedure" target="_blank" rel="noopener" class="button">1. 実施手順を確認する</a>
           <p class="comment">
             朝旗・防パトの実施手順です。<br /><span class="underlined">実施前に必ず確認してください。</span>
           </p>
