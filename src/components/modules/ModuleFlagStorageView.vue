@@ -142,6 +142,9 @@ const _deleteDBData = async (deleteID) => {
   <p v-else class="reserve-message">予約情報はありません</p>
   <div class="inner-s supplement-message-wrapper">
     <p class="supplement-message">
+      「Cookieと他のサイトデータ」の削除をした場合、予約情報が表示されなくなりますので、<span class="bold">予約時にメモを取ってください。</span>
+    </p>
+    <p class="supplement-message">
       このブラウザ（Google Chrome、Safari、Microsoft Edgeなど）で予約した内容が表示されています。
     </p>
     <p class="supplement-message">
@@ -163,9 +166,11 @@ hr {
   margin-top: 4rem;
   margin-bottom: 4rem;
 }
+
 table {
   width: 100%;
 }
+
 tr {
   display: grid;
   grid-template-columns: 90px 1fr auto;
@@ -175,66 +180,88 @@ tr {
     "class date delete";
   align-items: center;
 }
-tr + tr {
+
+tr+tr {
   border-top: 1px solid #ccc;
 }
+
 .class {
   grid-area: class;
 }
+
 .head .class {
   display: flex;
   flex-direction: column;
 }
+
 .point {
   grid-area: point;
   text-align: left;
 }
+
 .date {
   grid-area: date;
   text-align: left;
 }
+
 .delete {
   grid-area: delete;
 }
+
 .title {
   text-align: center;
 }
+
 .button {
   padding: 0.5em;
   min-width: auto;
 }
+
 .no-wrap {
   white-space: nowrap;
 }
+
 .reserve-message {
   text-align: center;
 }
+
 .supplement-message-wrapper {
   margin-top: 2rem;
   font-size: 0.8rem;
 }
-.supplement-message + .supplement-message {
+
+.supplement-message+.supplement-message {
   margin-top: 0.4rem;
 }
+
 .supplement-message a {
   text-decoration: underline;
 }
+
+.supplement-message .bold {
+  font-weight: bold;
+}
+
 /* PC */
 @media (min-width: 768px) {
   table {
     width: auto;
   }
+
   tr {
     grid-template-columns: 130px 1fr 130px 70px;
     grid-template-rows: auto;
     grid-template-areas: "class point date delete";
   }
+
   .head .class {
     flex-direction: row;
   }
+
   .point {
     text-align: center;
   }
+
   .date {
     text-align: center;
   }

@@ -132,7 +132,7 @@ const reserve = async () => {
     }
 
     // メッセージを表示
-    alert("予約しました");
+    alert(`予約しました。\n【日付】${props.selectedInfo.year}-${props.selectedInfo.month}-${props.selectedInfo.day}\n【立ち位置】${props.selectedInfo.pointName}\n※ 予約情報のメモを取ってください。`);
   }
 
   // モーダルを閉じる
@@ -207,24 +207,30 @@ const reserve = async () => {
 .form {
   margin-top: 2rem;
 }
+
 .form__row {
   display: grid;
   grid-template-columns: 6rem 1fr;
   align-items: center;
 }
-.form__label + .form__label {
+
+.form__label+.form__label {
   margin-top: 1rem;
 }
-.form__row + .form__row {
+
+.form__row+.form__row {
   margin-top: 1.5rem;
 }
+
 .form__divide {
   margin-block: 1.5rem;
 }
+
 .form__btn {
   margin-top: 2rem;
   text-align: center;
 }
+
 .form__attention {
   margin-top: 2rem;
   padding: 1em;
@@ -232,21 +238,26 @@ const reserve = async () => {
   max-width: 500px;
   border-radius: 0.5em;
 }
+
 .form__attention-head {
   margin-bottom: 1em;
   font-weight: bold;
   color: red;
 }
+
 .form__attention-list {
   list-style: disc;
   padding-left: 1em;
 }
+
 .form__attention-list li {
   line-height: 1.6;
 }
-.form__attention-list li + li {
+
+.form__attention-list li+li {
   margin-top: 0.7em;
 }
+
 .undecided-message {
   margin-top: 1rem;
 }
