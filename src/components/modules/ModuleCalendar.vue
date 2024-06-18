@@ -195,9 +195,9 @@ const _generateCalendar = (year, month) => {
     // 祝日チェック
     let holidayFlg = false;
     Object.keys(holidays.value).forEach(date => {
-    if (date === fullDate) {
+      if (date === fullDate) {
         holidayFlg = true;
-    }
+      }
     });
     // 除外日チェック
     let exclusionFlg = false;
@@ -223,7 +223,7 @@ const _generateCalendar = (year, month) => {
       fullDate: fullDate,
       label: label,
       isAble: isAble,
-      isSpace:  isSpace,
+      isSpace: isSpace,
       isToday: isToday,
       isHoliday: holidayFlg,
       isExclusion: exclusionFlg,
@@ -231,7 +231,7 @@ const _generateCalendar = (year, month) => {
       tabIndex: tabIndex
     });
   }
-return newCalendar;
+  return newCalendar;
 }
 
 // --------------------------------------
@@ -240,25 +240,35 @@ return newCalendar;
 onMounted(() => {
   // 祝日情報を取得
   _fetchHolidays()
-  // 除外日情報を取得
-  _getExclude()
-  // 実施期間を取得
-  _getPeriod()
-
+    .then(() => {
+      // 除外日情報を取得
+      return _getExclude();
+    })
+    .then(() => {
+      // 実施期間を取得
+      return _getPeriod();
+    })
     .then(() => {
       // 本日の情報を取得
-      _getCurrentInfo();
+      return _getCurrentInfo();
+    })
+    .then(() => {
       // カレンダー生成
       if (props.page === "reserve-flag-grade") {
         _setTargetMonth();
       } else {
-        calendar.value = _generateCalendar(currentInfo.value.year, currentInfo.value.month)
+        calendar.value = _generateCalendar(currentInfo.value.year, currentInfo.value.month);
+      }
+      // つどさぽの場合は予約情報を検索する
+      if (props.page === "reserve-flag-support") {
+        getReservation(props.selectedInfo.pointID, currentInfo.value.year, currentInfo.value.month);
       }
     })
     .catch(error => {
       console.error('カレンダーの生成に失敗しました:', error);
     });
 });
+
 
 // --------------------------------------
 //  予約情報を取得（条件：ポイントID、年、月）
@@ -373,7 +383,7 @@ const checkLine = (e) => {
   const checked = e.target.checked;
 
   // 選択した列すべてのチェックボックスを変更する
-  calendar.value.forEach((day,i) => {
+  calendar.value.forEach((day, i) => {
     if (i % 7 == index) {
       day.isExclusion = checked;
     }
@@ -423,7 +433,7 @@ const _setExclude = () => {
         .catch(error => {
           console.error('除外日の登録に失敗しました:', error);
         });
-      }
+    }
   });
 }
 
@@ -447,7 +457,7 @@ if (props.page.startsWith("reserve")) {
 //  監視（学年が変更されたら実施期間を更新）
 // --------------------------------------
 if (props.page === "reserve-flag-grade") {
-  watch(() => props.selectedInfo.grade, async(newValue, oldValue) => {
+  watch(() => props.selectedInfo.grade, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
       _setTargetMonth();
     }
@@ -504,6 +514,8 @@ const _setTargetMonth = () => {
     }
     currentInfo.value.year = targetYear;
     currentInfo.value.month = targetMonth;
+    props.selectedInfo.year = targetYear;
+    props.selectedInfo.month = targetMonth;
   }
   // カレンダー生成 & 予約情報を取得
   _regenerateCalendar(currentInfo.value.year, currentInfo.value.month);
@@ -523,8 +535,8 @@ defineExpose({
     <p v-if="page === 'reserve-flag-grade'" class="period-message">
       {{ selectedInfo.grade }}年生の担当期間は
       <ol class="period-list">
-        <li v-for="(period,index) in periodsOfGrades" :key=index>
-          <span class="period">{{period.start}} 〜 {{period.end}}</span>
+        <li v-for="(period, index) in periodsOfGrades" :key=index>
+          <span class="period">{{ period.start }} 〜 {{ period.end }}</span>
         </li>
       </ol>
       です。
@@ -532,13 +544,13 @@ defineExpose({
     <!-- カレンダータイトル -->
     <div class="title">
       <button type="button" class="move-month move-month--prev" @click="movePrevMonth"><span></span></button>
-      <span v-if="currentInfo">{{currentInfo.year}} / {{currentInfo.month}}</span>
+      <span v-if="currentInfo">{{ currentInfo.year }} / {{ currentInfo.month }}</span>
       <button type="button" class="move-month move-month--next" @click="moveNextMonth"><span></span></button>
     </div>
     <!-- カレンダーメイン -->
     <ol class="body">
       <!-- カレンダー曜日 -->
-      <li v-for="(day,index) in weeks" :key=index class="item item--day">{{day}}<input v-if="page === 'exclude-date'" type="checkbox" :name="'checkbox'+index" :id="'checkbox'+index" class="line-checkbox" @change="checkLine"></li>
+      <li v-for="(day, index) in weeks" :key=index class="item item--day">{{ day }}<input v-if="page === 'exclude-date'" type="checkbox" :name="'checkbox' + index" :id="'checkbox' + index" class="line-checkbox" @change="checkLine"></li>
       <!-- カレンダー日付 -->
       <li v-for="(list, index) in calendar" :key="index" class="item" :class="{
         'is-able': list.isAble,
@@ -549,8 +561,8 @@ defineExpose({
         'is-target': list.isTarget,
       }">
         <button type="button" class="item--btn js-modal-trigger" :tabindex="list.tabIndex" @click="selectDate(list.fullDate)">
-          <span class="item--date" :class="{'is-today':list.isToday}">{{list.date}}</span>
-          <span v-if="page.includes('reserve')" class="item--label">{{list.label}}</span>
+          <span class="item--date" :class="{ 'is-today': list.isToday }">{{ list.date }}</span>
+          <span v-if="page.includes('reserve')" class="item--label">{{ list.label }}</span>
         </button>
         <input v-if="page === 'exclude-date'" type="checkbox" name="exclude" id="exclude" :checked="list.isExclusion" v-model="list.isExclusion">
       </li>
@@ -576,12 +588,14 @@ defineExpose({
   text-align: left;
   line-height: 2;
 }
+
 .period-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5em;
   width: fit-content;
 }
+
 .period {
   padding: 0.5em;
   font-weight: bold;
@@ -590,7 +604,7 @@ defineExpose({
 }
 
 /* タイトル（＜ 年/月 ＞） */
-.title{
+.title {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -603,12 +617,13 @@ defineExpose({
   padding: 0 1em;
 }
 
-.move-month span{
+.move-month span {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-top: solid 1px var(--color-font-base);
-  border-right: solid 1px var(--color-font-base);;
+  border-right: solid 1px var(--color-font-base);
+  ;
 }
 
 .move-month--prev span {
@@ -618,17 +633,18 @@ defineExpose({
 .move-month--next span {
   transform: translateY(-50%) rotate(45deg);
 }
+
 /* カレンダー全体 */
-.body{
+.body {
   margin-top: 1rem;
-  width:100%;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(7,1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 2px;
   text-align: center;
 }
 
-.item{
+.item {
   min-height: 3rem;
   text-align: center;
   background-color: var(--color-light-gray-shadow);
@@ -674,7 +690,7 @@ defineExpose({
 }
 
 .reserve-flag-grade .item,
-.reserve-flag-support .item  {
+.reserve-flag-support .item {
   opacity: 0.8;
 }
 
@@ -685,6 +701,7 @@ defineExpose({
 }
 
 @media (hover: hover) {
+
   .reserve-flag-grade .item.is-able:is(:hover, :focus-visible),
   .reserve-flag-support .item.is-able:is(:hover, :focus-visible) {
     opacity: 0.8;
@@ -704,13 +721,13 @@ defineExpose({
 }
 
 /* 予約済 */
-.item.is-reserved{
+.item.is-reserved {
   background-color: var(--color-light-gray-shadow);
   border-bottom: solid 5px var(--color-light-gray-shadow);
 }
 
 /* 日付なし */
-.item.is-space{
+.item.is-space {
   background-color: transparent;
   border-bottom: transparent;
 }
@@ -720,30 +737,33 @@ defineExpose({
 }
 
 /* 土曜日 */
-.item:nth-of-type(7n-1):not(.is-space,.is-holiday,.item--day){
+.item:nth-of-type(7n-1):not(.is-space, .is-holiday, .item--day) {
   background-color: var(--color-light-blue-shadow);
   border-bottom: solid 5px var(--color-light-blue-shadow);
 }
-.item:nth-of-type(7n-1):is(.is-able):not(.is-space,.is-holiday,.item--day){
+
+.item:nth-of-type(7n-1):is(.is-able):not(.is-space, .is-holiday, .item--day) {
   background-color: var(--color-light-blue);
-  border-bottom: solid 5px var(--color-light-blue-shadow);;
+  border-bottom: solid 5px var(--color-light-blue-shadow);
+  ;
 }
 
 /* 日曜日 */
-.item:nth-of-type(7n):not(.is-space,.item--day),
+.item:nth-of-type(7n):not(.is-space, .item--day),
 .item.is-holiday {
-  background-color:var(--color-light-pink-shadow);
+  background-color: var(--color-light-pink-shadow);
   border-bottom: solid 5px var(--color-light-pink-shadow);
 }
-.item:nth-of-type(7n):is(.is-able):not(.is-space,.item--day),
-.item.is-holiday:not(.is-exclusion){
-  background-color:var(--color-light-pink);
+
+.item:nth-of-type(7n):is(.is-able):not(.is-space, .item--day),
+.item.is-holiday:not(.is-exclusion) {
+  background-color: var(--color-light-pink);
   border-bottom: solid 5px var(--color-light-pink-shadow);
 }
 
 /* 日付 */
 .item--date {
-  display:flex;
+  display: flex;
   justify-content: center;
   align-items: center;
   width: 1.7em;
@@ -752,7 +772,7 @@ defineExpose({
 }
 
 /* 本日 */
-.item--date.is-today{
+.item--date.is-today {
   background-color: #888;
   color: #fff;
 }
@@ -764,5 +784,4 @@ input[type="checkbox"] {
   cursor: pointer;
   pointer-events: initial;
 }
-
 </style>

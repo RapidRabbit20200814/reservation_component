@@ -63,6 +63,8 @@ const updateDate = (date) => {
 // [ModuleFlagStorageView]予約データ削除
 // [ModuleFlagReserveDialog]データ重複
 const updateCalendar = () => {
+  console.log("updateCalendar");
+  console.log(selectedInfo.value.pointID + "," + selectedInfo.value.year + "," + selectedInfo.value.month)
   calendarRef.value?.getReservation(selectedInfo.value.pointID, selectedInfo.value.year, selectedInfo.value.month);
 };
 </script>
@@ -99,12 +101,8 @@ const updateCalendar = () => {
       <ModuleFlagStorageView @delete="updateCalendar" :selectedInfo="selectedInfo" />
 
       <div class="button-area-lg button-area-flex">
-        <router-link :to="{ name: 'Menu' }" class="button button-return button-white button-small"
-          >メニューへ戻る</router-link
-        >
-        <router-link :to="{ name: 'PatrolReserve' }" class="button button-next button-white button-small"
-          >防パトの予約へ</router-link
-        >
+        <router-link :to="{ name: 'Menu' }" class="button button-return button-white button-small">メニューへ戻る</router-link>
+        <router-link :to="{ name: 'PatrolReserve' }" class="button button-next button-white button-small">防パトの予約へ</router-link>
       </div>
     </div>
   </main>
@@ -114,6 +112,7 @@ const updateCalendar = () => {
 h2 {
   font-size: 1.2rem;
 }
+
 .grade-message {
   margin-bottom: 1rem;
 }
